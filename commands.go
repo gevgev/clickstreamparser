@@ -43,7 +43,7 @@ func (bt BaseEvent) Diagnostic() string {
 	return fmt.Sprintf("Serial:[%s]\tChecksum:[%s]\tLinefeed:[%s]", bt.Serial, bt.Checksum, bt.Linefeed)
 }
 
-// ---------- Ad --------------------
+// ---------- Ad: A, 41 --------------------
 type AdEvent struct {
 	*BaseEvent
 	AdType string
@@ -66,7 +66,7 @@ func (at AdEvent) String() string {
 	return fmt.Sprintf("[%s]\tAdType:[%s]\tAdId:[%s]", at.BaseEvent, at.AdType, at.AdId)
 }
 
-// ---------- Button Config --------------------
+// ---------- Button Config: B, 42 --------------------
 type ButtonConfigEvent struct {
 	*BaseEvent
 	ButtonId      string
@@ -77,6 +77,7 @@ type ButtonConfigEvent struct {
 
 func NewButtonConfigEvent(clickString string) *ButtonConfigEvent {
 	btcf := new(ButtonConfigEvent)
+
 	btcf.BaseEvent = NewBaseEvent(clickString)
 	//
 	//"42 4427ABE8 00F7 0B 0C 4D6F746F722053706F727473 030B4D6F746F7273706F7274733164646464643164306464306430303164646464646464646464303030303030303130303030303030303030303030303030 60 8C 0A"
@@ -95,4 +96,47 @@ func (btcf ButtonConfigEvent) String() string {
 		btcf.BaseEvent, btcf.ButtonId, btcf.ButtonType, btcf.ButtonText, btcf.ButtonVarData)
 }
 
-// ---------- Channel Change Verbose--------------------
+// ---------- Channel Change Verbose: C, 43 --------------------
+
+type ChannelChangeVerboseEvent struct {
+	*BaseEvent
+	Channel       string
+	SourseId      string
+	ProgramId     string
+	Auth          string
+	TunerInfo     string
+	PreviousState string
+	LastKey       string
+}
+
+func NewChannelChangeVerboseEvent(clickString string) *ChannelChangeVerboseEvent {
+	channelchange := new(ChannelChangeVerboseEvent)
+	channelchange.BaseEvent = NewBaseEvent(clickString)
+	// C   time     chN  src prgmId A  TI PS LK
+	// 43 442878E2 01F8 2B57 42AE47 41 00 07 13 AF 3B 0A
+
+	channelchange.Channel = clickString[10:14]
+	channelchange.SourseId = clickString[14:18]
+	channelchange.ProgramId = clickString[18:24]
+	channelchange.Auth = convertToString(clickString[24:26])
+	channelchange.TunerInfo = clickString[26:28]
+	channelchange.PreviousState = clickString[28:30]
+	channelchange.LastKey = clickString[30:32]
+
+	return channelchange
+}
+
+func (channelchange ChannelChangeVerboseEvent) String() string {
+	return fmt.Sprintf("[%s]\tChannel:[%s]\tSourseId:[%s]\tProgramId:[%s]\tAuth:[%s]\tTuner Info:[%s]\tPrevious State:[%s]\tLast Key:[%s]",
+		channelchange.BaseEvent,
+		channelchange.Channel,
+		channelchange.SourseId,
+		channelchange.ProgramId,
+		channelchange.Auth,
+		channelchange.TunerInfo,
+		channelchange.PreviousState,
+		channelchange.LastKey)
+
+}
+
+// ---------- State: S, 53 --------------------

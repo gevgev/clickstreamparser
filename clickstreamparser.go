@@ -28,12 +28,13 @@ type Command string
 const (
 	R_AD      Command = "41"
 	R_BtnCnfg Command = "42"
-	R_Chan    Command = "43"
+	R_ChanVrb Command = "43"
+	R_STATE   Command = "53"
 )
 
 func GetNextCommand() string {
 	//return "4100112233445566778899AABBCCDDEEFF"
-	return test_KEY_B
+	return test_KEY_C
 }
 
 func CheckCommand(clickString string) Command {
@@ -68,6 +69,22 @@ func main() {
 			btcnfgEvent.Serial,
 			btcnfgEvent.Checksum,
 			btcnfgEvent.Linefeed)
+	case R_ChanVrb:
+		channelchange := NewChannelChangeVerboseEvent(clickString)
+		fmt.Printf("Button Config event: [%s]\n", channelchange)
+		fmt.Println("Diagnostics: ", channelchange.BaseEvent.Diagnostic())
+		fmt.Println(channelchange.Command,
+			channelchange.Timestamp,
+			channelchange.Channel,
+			channelchange.SourseId,
+			channelchange.ProgramId,
+			channelchange.Auth,
+			channelchange.TunerInfo,
+			channelchange.PreviousState,
+			channelchange.LastKey,
+			channelchange.Serial,
+			channelchange.Checksum,
+			channelchange.Linefeed)
 
 	}
 }

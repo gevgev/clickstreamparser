@@ -9,6 +9,7 @@ const (
 	UTC_GPS_Diff = 315964800
 )
 
+// ---------- Common Base: Command Code, Timestamp, Serial, Checksum, Linefeed --------------------
 type BaseEvent struct {
 	Command   string
 	Timestamp time.Time
@@ -63,7 +64,7 @@ func NewAdEvent(clickString string) *AdEvent {
 }
 
 func (at AdEvent) String() string {
-	return fmt.Sprintf("[%s]\tAdType:[%s]\tAdId:[%s]", at.BaseEvent, at.AdType, at.AdId)
+	return fmt.Sprintf("%s\tAdType:[%s]\tAdId:[%s]", at.BaseEvent, at.AdType, at.AdId)
 }
 
 // ---------- Button Config: B, 42 --------------------
@@ -92,7 +93,7 @@ func NewButtonConfigEvent(clickString string) *ButtonConfigEvent {
 }
 
 func (btcf ButtonConfigEvent) String() string {
-	return fmt.Sprintf("[%s]\tButtonId:[%s]\tButtonType:[%s]\tText:[%s]\tData:[%s]",
+	return fmt.Sprintf("%s\tButtonId:[%s]\tButtonType:[%s]\tText:[%s]\tData:[%s]",
 		btcf.BaseEvent, btcf.ButtonId, btcf.ButtonType, btcf.ButtonText, btcf.ButtonVarData)
 }
 
@@ -127,7 +128,7 @@ func NewChannelChangeVerboseEvent(clickString string) *ChannelChangeVerboseEvent
 }
 
 func (channelchange ChannelChangeVerboseEvent) String() string {
-	return fmt.Sprintf("[%s]\tChannel:[%s]\tSourseId:[%s]\tProgramId:[%s]\tAuth:[%s]\tTuner Info:[%s]\tPrevious State:[%s]\tLast Key:[%s]",
+	return fmt.Sprintf("%s\tChannel:[%s]\tSourseId:[%s]\tProgramId:[%s]\tAuth:[%s]\tTuner Info:[%s]\tPrevious State:[%s]\tLast Key:[%s]",
 		channelchange.BaseEvent,
 		channelchange.Channel,
 		channelchange.SourseId,
@@ -161,10 +162,35 @@ func NewStateEvent(clickString string) *StateEvent {
 }
 
 func (statechange StateEvent) String() string {
-	return fmt.Sprintf("[%s]\tState:[%s]\tPrevious State:[%s]\tLast Key:[%s]",
+	return fmt.Sprintf("%s\tState:[%s]\tPrevious State:[%s]\tLast Key:[%s]",
 		statechange.BaseEvent,
 		statechange.State,
 		statechange.PreviousState,
 		statechange.LastKey)
+}
+
+// ---------- State: I, 49 --------------------
+
+type InfoScreenEvent struct {
+	*BaseEvent
+	Type string
+	Id   string
+}
+
+func NewInfoScreenEvent(clickString string) *InfoScreenEvent {
+	info := new(InfoScreenEvent)
+	info.BaseEvent = NewBaseEvent(clickString)
+	//
+	// 49 44287C54 56 00EBE822 D5 5B 0A
+	info.Type = convertToString(clickString[10:12])
+	info.Id = clickString[12:20]
+	return info
+}
+
+func (info InfoScreenEvent) String() string {
+	return fmt.Sprintf("%s\tType:[%s]\tId:[%s]",
+		info.BaseEvent,
+		info.Type,
+		info.Id)
 
 }

@@ -32,6 +32,7 @@ const (
 	R_BtnCnfg Command = "42"
 	R_ChanVrb Command = "43"
 	R_STATE   Command = "53"
+	R_INFO    Command = "49"
 )
 
 var answers = []string{
@@ -39,6 +40,7 @@ var answers = []string{
 	test_KEY_B,
 	test_KEY_C,
 	test_KEY_S,
+	test_KEY_I,
 }
 
 func GetNextCommand() string {
@@ -60,7 +62,7 @@ func main() {
 		switch CheckCommand(clickString) {
 		case R_AD:
 			adEvent := NewAdEvent(clickString)
-			fmt.Printf("Ad event: [%s]\n", adEvent)
+			fmt.Printf("Ad event: %s\n", adEvent)
 			fmt.Println("Diagnostics: ", adEvent.BaseEvent.Diagnostic())
 			fmt.Println(adEvent.Command,
 				adEvent.Timestamp,
@@ -71,7 +73,7 @@ func main() {
 				adEvent.Linefeed)
 		case R_BtnCnfg:
 			btcnfgEvent := NewButtonConfigEvent(clickString)
-			fmt.Printf("Button Config event: [%s]\n", btcnfgEvent)
+			fmt.Printf("Button Config event: %s\n", btcnfgEvent)
 			fmt.Println("Diagnostics: ", btcnfgEvent.BaseEvent.Diagnostic())
 			fmt.Println(btcnfgEvent.Command,
 				btcnfgEvent.Timestamp,
@@ -84,7 +86,7 @@ func main() {
 				btcnfgEvent.Linefeed)
 		case R_ChanVrb:
 			channelchange := NewChannelChangeVerboseEvent(clickString)
-			fmt.Printf("Channel change event: [%s]\n", channelchange)
+			fmt.Printf("Channel change event: %s\n", channelchange)
 			fmt.Println("Diagnostics: ", channelchange.BaseEvent.Diagnostic())
 			fmt.Println(channelchange.Command,
 				channelchange.Timestamp,
@@ -100,12 +102,19 @@ func main() {
 				channelchange.Linefeed)
 		case R_STATE:
 			statechange := NewStateEvent(clickString)
-			fmt.Printf("State event: [%s]\n", statechange)
+			fmt.Printf("State event: %s\n", statechange)
 			fmt.Println("Diagnostics: ", statechange.BaseEvent.Diagnostic())
 			fmt.Println(statechange.Command,
 				statechange.State,
 				statechange.PreviousState,
 				statechange.LastKey)
+		case R_INFO:
+			info := NewInfoScreenEvent(clickString)
+			fmt.Printf("State event: %s\n", info)
+			fmt.Println("Diagnostics: ", info.BaseEvent.Diagnostic())
+			fmt.Println(info.Command,
+				info.Type,
+				info.Id)
 		}
 	}
 }

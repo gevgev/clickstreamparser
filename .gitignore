@@ -1,0 +1,7 @@
+clickstreamparser
+*.json
+*.xml
+*.out
+*.cs
+*.raw
+

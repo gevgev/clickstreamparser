@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
+	"time"
 )
 
 const (
@@ -32,9 +34,16 @@ const (
 	R_STATE   Command = "53"
 )
 
+var answers = []string{
+	test_KEY_A,
+	test_KEY_B,
+	test_KEY_C,
+	test_KEY_S,
+}
+
 func GetNextCommand() string {
 	//return "4100112233445566778899AABBCCDDEEFF"
-	return test_KEY_C
+	return answers[rand.Intn(len(answers))]
 }
 
 func CheckCommand(clickString string) Command {
@@ -42,49 +51,61 @@ func CheckCommand(clickString string) Command {
 }
 
 func main() {
-	clickString := GetNextCommand()
-	fmt.Println("Got: ", clickString)
-	switch CheckCommand(clickString) {
-	case R_AD:
-		adEvent := NewAdEvent(clickString)
-		fmt.Printf("Ad event: [%s]\n", adEvent)
-		fmt.Println("Diagnostics: ", adEvent.BaseEvent.Diagnostic())
-		fmt.Println(adEvent.Command,
-			adEvent.Timestamp,
-			adEvent.AdType,
-			adEvent.AdId,
-			adEvent.Serial,
-			adEvent.Checksum,
-			adEvent.Linefeed)
-	case R_BtnCnfg:
-		btcnfgEvent := NewButtonConfigEvent(clickString)
-		fmt.Printf("Button Config event: [%s]\n", btcnfgEvent)
-		fmt.Println("Diagnostics: ", btcnfgEvent.BaseEvent.Diagnostic())
-		fmt.Println(btcnfgEvent.Command,
-			btcnfgEvent.Timestamp,
-			btcnfgEvent.ButtonId,
-			btcnfgEvent.ButtonType,
-			btcnfgEvent.ButtonText,
-			btcnfgEvent.ButtonVarData,
-			btcnfgEvent.Serial,
-			btcnfgEvent.Checksum,
-			btcnfgEvent.Linefeed)
-	case R_ChanVrb:
-		channelchange := NewChannelChangeVerboseEvent(clickString)
-		fmt.Printf("Button Config event: [%s]\n", channelchange)
-		fmt.Println("Diagnostics: ", channelchange.BaseEvent.Diagnostic())
-		fmt.Println(channelchange.Command,
-			channelchange.Timestamp,
-			channelchange.Channel,
-			channelchange.SourseId,
-			channelchange.ProgramId,
-			channelchange.Auth,
-			channelchange.TunerInfo,
-			channelchange.PreviousState,
-			channelchange.LastKey,
-			channelchange.Serial,
-			channelchange.Checksum,
-			channelchange.Linefeed)
+	rand.Seed(int64(time.Now().Second()))
 
+	for i := 0; i < 10; i++ {
+		clickString := GetNextCommand()
+		fmt.Println("-----------------------------------------------")
+		fmt.Println("Got: ", clickString)
+		switch CheckCommand(clickString) {
+		case R_AD:
+			adEvent := NewAdEvent(clickString)
+			fmt.Printf("Ad event: [%s]\n", adEvent)
+			fmt.Println("Diagnostics: ", adEvent.BaseEvent.Diagnostic())
+			fmt.Println(adEvent.Command,
+				adEvent.Timestamp,
+				adEvent.AdType,
+				adEvent.AdId,
+				adEvent.Serial,
+				adEvent.Checksum,
+				adEvent.Linefeed)
+		case R_BtnCnfg:
+			btcnfgEvent := NewButtonConfigEvent(clickString)
+			fmt.Printf("Button Config event: [%s]\n", btcnfgEvent)
+			fmt.Println("Diagnostics: ", btcnfgEvent.BaseEvent.Diagnostic())
+			fmt.Println(btcnfgEvent.Command,
+				btcnfgEvent.Timestamp,
+				btcnfgEvent.ButtonId,
+				btcnfgEvent.ButtonType,
+				btcnfgEvent.ButtonText,
+				btcnfgEvent.ButtonVarData,
+				btcnfgEvent.Serial,
+				btcnfgEvent.Checksum,
+				btcnfgEvent.Linefeed)
+		case R_ChanVrb:
+			channelchange := NewChannelChangeVerboseEvent(clickString)
+			fmt.Printf("Channel change event: [%s]\n", channelchange)
+			fmt.Println("Diagnostics: ", channelchange.BaseEvent.Diagnostic())
+			fmt.Println(channelchange.Command,
+				channelchange.Timestamp,
+				channelchange.Channel,
+				channelchange.SourseId,
+				channelchange.ProgramId,
+				channelchange.Auth,
+				channelchange.TunerInfo,
+				channelchange.PreviousState,
+				channelchange.LastKey,
+				channelchange.Serial,
+				channelchange.Checksum,
+				channelchange.Linefeed)
+		case R_STATE:
+			statechange := NewStateEvent(clickString)
+			fmt.Printf("State event: [%s]\n", statechange)
+			fmt.Println("Diagnostics: ", statechange.BaseEvent.Diagnostic())
+			fmt.Println(statechange.Command,
+				statechange.State,
+				statechange.PreviousState,
+				statechange.LastKey)
+		}
 	}
 }

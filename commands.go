@@ -27,7 +27,7 @@ func NewBaseEvent(clickString string) *BaseEvent {
 	bt := new(BaseEvent)
 	// A	time    ... s-n c-s LF
 	// 41 44287C70  ...  B0  E5  0A
-	bt.Command = clickString[0:2]
+	bt.Command = convertToString(clickString[0:2])
 	bt.Timestamp = convertToTime(clickString[2:10])
 	bt.Serial = clickString[len(clickString)-6 : len(clickString)-4]
 	bt.Checksum = clickString[len(clickString)-4 : len(clickString)-2]
@@ -36,7 +36,7 @@ func NewBaseEvent(clickString string) *BaseEvent {
 }
 
 func (bt BaseEvent) String() string {
-	return fmt.Sprintf("C:[%s]\tTimestamp:[%s]", bt.Command, bt.Timestamp)
+	return fmt.Sprintf("Command:[%s]\tTimestamp:[%s]", bt.Command, bt.Timestamp)
 }
 
 func (bt BaseEvent) Diagnostic() string {
@@ -140,3 +140,31 @@ func (channelchange ChannelChangeVerboseEvent) String() string {
 }
 
 // ---------- State: S, 53 --------------------
+
+type StateEvent struct {
+	*BaseEvent
+	State         string
+	PreviousState string
+	LastKey       string
+}
+
+func NewStateEvent(clickString string) *StateEvent {
+	stateEvent := new(StateEvent)
+	stateEvent.BaseEvent = NewBaseEvent(clickString)
+	//  S   time    S PS LK
+	// 53 44287C58 F8 E2 11 EF 93 0A
+	stateEvent.State = clickString[10:12]
+	stateEvent.PreviousState = clickString[12:14]
+	stateEvent.LastKey = clickString[14:16]
+
+	return stateEvent
+}
+
+func (statechange StateEvent) String() string {
+	return fmt.Sprintf("[%s]\tState:[%s]\tPrevious State:[%s]\tLast Key:[%s]",
+		statechange.BaseEvent,
+		statechange.State,
+		statechange.PreviousState,
+		statechange.LastKey)
+
+}

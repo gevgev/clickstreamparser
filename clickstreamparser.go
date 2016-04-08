@@ -126,19 +126,19 @@ const (
 )
 
 var answers = []string{
-	/*	test_KEY_A,
-		test_KEY_B,
-		test_KEY_C,
-		test_KEY_S,
-		test_KEY_I,
-		test_KEY_H,
-		test_KEY_H1,
-		test_KEY_H2,
-		test_KEY_H3,
-		test_KEY_H4,
-		test_KEY_H5,
-		test_KEY_H6,
-		test_KEY_V, */
+	test_KEY_A,
+	test_KEY_B,
+	test_KEY_C,
+	test_KEY_S,
+	test_KEY_I,
+	test_KEY_H,
+	test_KEY_H1,
+	test_KEY_H2,
+	test_KEY_H3,
+	test_KEY_H4,
+	test_KEY_H5,
+	test_KEY_H6,
+	test_KEY_V,
 	test_KEY_U,
 	test_KEY_U1,
 	test_KEY_U2,
@@ -146,9 +146,11 @@ var answers = []string{
 
 func GetNextCommand() string {
 	//return "4100112233445566778899AABBCCDDEEFF"
-
-	return answers[rand.Intn(len(answers))]
-	//return test_KEY_K[rand.Intn(len(test_KEY_K))]
+	if (rand.Intn(2)) == 1 {
+		return answers[rand.Intn(len(answers))]
+	} else {
+		return test_KEY_K[rand.Intn(len(test_KEY_K))]
+	}
 }
 
 func CheckCommand(clickString string) Command {
@@ -158,101 +160,128 @@ func CheckCommand(clickString string) Command {
 func main() {
 	rand.Seed(int64(time.Now().Second()))
 
-	for i := 0; i < 5; i++ {
+	diagnostics := false
+
+	for i := 0; i < 100; i++ {
 		clickString := GetNextCommand()
-		fmt.Println("-----------------------------------------------")
-		fmt.Println("Got: ", clickString)
+		//fmt.Println("-----------------------------------------------")
+		//fmt.Println("Got: ", clickString)
+		fmt.Printf("Device Id: 0000008B8D72 ")
 		switch CheckCommand(clickString) {
 		case R_AD:
 			adEvent := NewAdEvent(clickString)
-			fmt.Printf("Ad event: %s\n", adEvent)
-			fmt.Println("Diagnostics: ", adEvent.BaseEvent.Diagnostic())
-			fmt.Println(adEvent.Command,
-				adEvent.Timestamp,
-				adEvent.AdType,
-				adEvent.AdId,
-				adEvent.Serial,
-				adEvent.Checksum,
-				adEvent.Linefeed)
+			fmt.Println(adEvent)
+			if diagnostics {
+				fmt.Println("Diagnostics: ", adEvent.BaseEvent.Diagnostic())
+
+				fmt.Println(adEvent.Command,
+					adEvent.Timestamp,
+					adEvent.AdType,
+					adEvent.AdId,
+					adEvent.Serial,
+					adEvent.Checksum,
+					adEvent.Linefeed)
+			}
 		case R_BtnCnfg:
 			btcnfgEvent := NewButtonConfigEvent(clickString)
-			fmt.Printf("Button Config event: %s\n", btcnfgEvent)
-			fmt.Println("Diagnostics: ", btcnfgEvent.BaseEvent.Diagnostic())
-			fmt.Println(btcnfgEvent.Command,
-				btcnfgEvent.Timestamp,
-				btcnfgEvent.ButtonId,
-				btcnfgEvent.ButtonType,
-				btcnfgEvent.ButtonText,
-				btcnfgEvent.ButtonVarData,
-				btcnfgEvent.Serial,
-				btcnfgEvent.Checksum,
-				btcnfgEvent.Linefeed)
+			fmt.Println(btcnfgEvent)
+			if diagnostics {
+				fmt.Println("Diagnostics: ", btcnfgEvent.BaseEvent.Diagnostic())
+				fmt.Println(btcnfgEvent.Command,
+					btcnfgEvent.Timestamp,
+					btcnfgEvent.ButtonId,
+					btcnfgEvent.ButtonType,
+					btcnfgEvent.ButtonText,
+					btcnfgEvent.ButtonVarData,
+					btcnfgEvent.Serial,
+					btcnfgEvent.Checksum,
+					btcnfgEvent.Linefeed)
+			}
 		case R_ChanVrb:
 			channelchange := NewChannelChangeVerboseEvent(clickString)
-			fmt.Printf("Channel change event: %s\n", channelchange)
-			fmt.Println("Diagnostics: ", channelchange.BaseEvent.Diagnostic())
-			fmt.Println(channelchange.Command,
-				channelchange.Timestamp,
-				channelchange.Channel,
-				channelchange.SourseId,
-				channelchange.ProgramId,
-				channelchange.Auth,
-				channelchange.TunerInfo,
-				channelchange.PreviousState,
-				channelchange.LastKey,
-				channelchange.Serial,
-				channelchange.Checksum,
-				channelchange.Linefeed)
+			fmt.Println(channelchange)
+			if diagnostics {
+				fmt.Println("Diagnostics: ", channelchange.BaseEvent.Diagnostic())
+				fmt.Println(channelchange.Command,
+					channelchange.Timestamp,
+					channelchange.Channel,
+					channelchange.SourseId,
+					channelchange.ProgramId,
+					channelchange.Auth,
+					channelchange.TunerInfo,
+					channelchange.PreviousState,
+					channelchange.LastKey,
+					channelchange.Serial,
+					channelchange.Checksum,
+					channelchange.Linefeed)
+			}
 		case R_STATE:
 			statechange := NewStateEvent(clickString)
-			fmt.Printf("State event: %s\n", statechange)
-			fmt.Println("Diagnostics: ", statechange.BaseEvent.Diagnostic())
-			fmt.Println(statechange.Command,
-				statechange.State,
-				statechange.PreviousState,
-				statechange.LastKey)
+			fmt.Println(statechange)
+			if diagnostics {
+				fmt.Println("Diagnostics: ", statechange.BaseEvent.Diagnostic())
+				fmt.Println(statechange.Command,
+					statechange.State,
+					statechange.PreviousState,
+					statechange.LastKey)
+			}
 		case R_INFO:
 			info := NewInfoScreenEvent(clickString)
-			fmt.Printf("State event: %s\n", info)
-			fmt.Println("Diagnostics: ", info.BaseEvent.Diagnostic())
-			fmt.Println(info.Command,
-				info.Type,
-				info.Id)
+			fmt.Println(info)
+			if diagnostics {
+
+				fmt.Println("Diagnostics: ", info.BaseEvent.Diagnostic())
+				fmt.Println(info.Command,
+					info.Type,
+					info.Id)
+			}
 		case R_KEY:
 			key := NewKeyPressEvent(clickString)
-			fmt.Printf("Key Press event: %s\n", key)
-			fmt.Println("Diagnostics: ", key.BaseEvent.Diagnostic())
-			fmt.Println(key.Command,
-				key.KeyCode)
+			fmt.Println(key)
+			if diagnostics {
+
+				fmt.Println("Diagnostics: ", key.BaseEvent.Diagnostic())
+				fmt.Println(key.Command,
+					key.KeyCode)
+			}
 		case R_HIGHLIGHT:
 			hilit := NewHighlightEvent(clickString)
-			fmt.Printf("Highlight event: %s\n", hilit)
-			fmt.Println("Diagnostics: ", hilit.BaseEvent.Diagnostic())
-			fmt.Println(hilit.Command,
-				hilit.Type,
-				hilit.IdFieldsStr)
+			fmt.Println(hilit)
+			if diagnostics {
+
+				fmt.Println("Diagnostics: ", hilit.BaseEvent.Diagnostic())
+				fmt.Println(hilit.Command,
+					hilit.Type,
+					hilit.IdFieldsStr)
+			}
 		case R_VIDEO:
 			video := NewVideoPlaybackEvent(clickString)
-			fmt.Printf("Video event: %s\n", video)
-			fmt.Println("Diagnostics: ", video.BaseEvent.Diagnostic())
-			fmt.Println(video.Id,
-				video.VodPlaybackMode,
-				video.Source,
-				video.PlayBackPosition)
+			fmt.Println(video)
+			if diagnostics {
+
+				fmt.Println("Diagnostics: ", video.BaseEvent.Diagnostic())
+				fmt.Println(video.Id,
+					video.VodPlaybackMode,
+					video.Source,
+					video.PlayBackPosition)
+			}
 		case R_UNIT:
 			unit := NewUnitIdentificationEvent(clickString)
-			fmt.Printf("Unit Ident event: %s\n", unit)
-			fmt.Println("Diagnostics: ", unit.BaseEvent.Diagnostic())
-			fmt.Println(unit.PeriodicReports,
-				unit.PollingReports,
-				unit.HighWaterMarkReports,
-				unit.BlackoutOverflowReports,
-				unit.ExceededMaxReportsPerHour,
-				unit.UsedBufferSize,
-				unit.GuideState,
-				unit.TunerInfo,
-				unit.SourceIdTuner0,
-				unit.SourceIdTuner1)
+			fmt.Println(unit)
+			if diagnostics {
+
+				fmt.Println("Diagnostics: ", unit.BaseEvent.Diagnostic())
+				fmt.Println(unit.PeriodicReports,
+					unit.PollingReports,
+					unit.HighWaterMarkReports,
+					unit.BlackoutOverflowReports,
+					unit.ExceededMaxReportsPerHour,
+					unit.UsedBufferSize,
+					unit.GuideState,
+					unit.TunerInfo,
+					unit.SourceIdTuner0,
+					unit.SourceIdTuner1)
+			}
 
 		}
 	}

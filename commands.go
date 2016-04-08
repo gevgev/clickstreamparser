@@ -28,7 +28,7 @@ func NewBaseEvent(clickString string) *BaseEvent {
 	bt := new(BaseEvent)
 	// A	time    ... s-n c-s LF
 	// 41 44287C70  ...  B0  E5  0A
-	bt.Command = convertToString(clickString[0:2])
+	bt.Command = lookUpEventName(clickString[0:2])
 	bt.Timestamp = convertToTime(clickString[2:10])
 	bt.Serial = clickString[len(clickString)-6 : len(clickString)-4]
 	bt.Checksum = clickString[len(clickString)-4 : len(clickString)-2]
@@ -37,7 +37,7 @@ func NewBaseEvent(clickString string) *BaseEvent {
 }
 
 func (bt BaseEvent) String() string {
-	return fmt.Sprintf("Command:[%s]\tTimestamp:[%s]", bt.Command, bt.Timestamp)
+	return fmt.Sprintf("Timestamp:[%s]\tEvent:[%16s] ", bt.Timestamp, bt.Command)
 }
 
 func (bt BaseEvent) Diagnostic() string {

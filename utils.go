@@ -43,3 +43,7 @@ func convertToString(str string) string {
 func lookUpKeyName(keyCode int) string {
 	return KeyName[keyCode]
 }
+
+func lookUpEventName(code string) string {
+	return EventCodes[code]
+}

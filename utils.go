@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/hex"
+	"path/filepath"
 	"strconv"
 	"time"
 )
@@ -46,4 +47,22 @@ func lookUpKeyName(keyCode int) string {
 
 func lookUpEventName(code string) string {
 	return EventCodes[code]
+}
+
+func validateOutFileName(fileName string) string {
+	// Check if it has extension
+	// If not, add the default extension
+	ext := filepath.Ext(fileName)
+	if ext == "" {
+		switch outputFormat {
+		case xmlOutput:
+			fileName = fileName + "." + xmlOutput
+		case jsonOutput:
+			fileName = fileName + "." + jsonOutput
+		case txtOutput:
+			fileName = fileName + "." + txtOutput
+		}
+	}
+
+	return fileName
 }

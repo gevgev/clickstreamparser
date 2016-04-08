@@ -14,7 +14,7 @@ func generateXml(events []interface{}) ([]byte, error) {
 	return b, nil
 }
 
-func saveXmlToFile(xmlStr []byte) error {
-	err := ioutil.WriteFile("events.xml", xmlStr, 0644)
+func saveXmlToFile(fileName string, xmlStr []byte) error {
+	err := ioutil.WriteFile(fileName, xmlStr, 0644)
 	return err
 }

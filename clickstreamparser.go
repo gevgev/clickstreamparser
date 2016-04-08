@@ -1,8 +1,11 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"math/rand"
+	"os"
+	"path/filepath"
 	"time"
 )
 
@@ -157,158 +160,271 @@ func CheckCommand(clickString string) Command {
 	return Command(clickString[0:2])
 }
 
-func main() {
-	rand.Seed(int64(time.Now().Second()))
+const (
+	txtOutput  = "txt"
+	xmlOutput  = "xml"
+	jsonOutput = "json"
+)
 
-	diagnostics := false
+func init() {
+	flagFileName := flag.String("fi", "", "Single filename to process")
+	flagDirName := flag.String("d", "", "Working folder for input files, default extension *.raw")
+	flagExtension := flag.String("e", "raw", "Input files extension, default is *raw ")
+	flagDiagnostics := flag.Bool("t", false, "Turns diagnostic messages On")
+	flagOutputFormat := flag.String("o", txtOutput, "Output formats: txt(default), json, xml")
+	flagOutputFile := flag.String("fo", "output.txt", "Output file name, default is output.txt")
 
-	eventsCollection := []interface{}{}
-
-	for i := 0; i < 100; i++ {
-		clickString := GetNextCommand()
-		//fmt.Println("-----------------------------------------------")
-		//fmt.Println("Got: ", clickString)
-		fmt.Printf("Device Id: 0000008B8D72 ")
-		switch CheckCommand(clickString) {
-		case R_AD:
-			adEvent := NewAdEvent(clickString)
-			fmt.Println(adEvent)
-			eventsCollection = append(eventsCollection, adEvent)
-			if diagnostics {
-				fmt.Println("Diagnostics: ", adEvent.BaseEvent.Diagnostic())
-
-				fmt.Println(adEvent.Command,
-					adEvent.Timestamp,
-					adEvent.AdType,
-					adEvent.AdId,
-					adEvent.Serial,
-					adEvent.Checksum,
-					adEvent.Linefeed)
-			}
-		case R_BtnCnfg:
-			btcnfgEvent := NewButtonConfigEvent(clickString)
-			fmt.Println(btcnfgEvent)
-			eventsCollection = append(eventsCollection, btcnfgEvent)
-			if diagnostics {
-				fmt.Println("Diagnostics: ", btcnfgEvent.BaseEvent.Diagnostic())
-				fmt.Println(btcnfgEvent.Command,
-					btcnfgEvent.Timestamp,
-					btcnfgEvent.ButtonId,
-					btcnfgEvent.ButtonType,
-					btcnfgEvent.ButtonText,
-					btcnfgEvent.ButtonVarData,
-					btcnfgEvent.Serial,
-					btcnfgEvent.Checksum,
-					btcnfgEvent.Linefeed)
-			}
-		case R_ChanVrb:
-			channelchange := NewChannelChangeVerboseEvent(clickString)
-			fmt.Println(channelchange)
-			eventsCollection = append(eventsCollection, channelchange)
-			if diagnostics {
-				fmt.Println("Diagnostics: ", channelchange.BaseEvent.Diagnostic())
-				fmt.Println(channelchange.Command,
-					channelchange.Timestamp,
-					channelchange.Channel,
-					channelchange.SourseId,
-					channelchange.ProgramId,
-					channelchange.Auth,
-					channelchange.TunerInfo,
-					channelchange.PreviousState,
-					channelchange.LastKey,
-					channelchange.Serial,
-					channelchange.Checksum,
-					channelchange.Linefeed)
-			}
-		case R_STATE:
-			statechange := NewStateEvent(clickString)
-			fmt.Println(statechange)
-			eventsCollection = append(eventsCollection, statechange)
-			if diagnostics {
-				fmt.Println("Diagnostics: ", statechange.BaseEvent.Diagnostic())
-				fmt.Println(statechange.Command,
-					statechange.State,
-					statechange.PreviousState,
-					statechange.LastKey)
-			}
-		case R_INFO:
-			info := NewInfoScreenEvent(clickString)
-			fmt.Println(info)
-			eventsCollection = append(eventsCollection, info)
-			if diagnostics {
-
-				fmt.Println("Diagnostics: ", info.BaseEvent.Diagnostic())
-				fmt.Println(info.Command,
-					info.Type,
-					info.Id)
-			}
-		case R_KEY:
-			key := NewKeyPressEvent(clickString)
-			fmt.Println(key)
-			eventsCollection = append(eventsCollection, key)
-			if diagnostics {
-
-				fmt.Println("Diagnostics: ", key.BaseEvent.Diagnostic())
-				fmt.Println(key.Command,
-					key.KeyCode)
-			}
-		case R_HIGHLIGHT:
-			hilit := NewHighlightEvent(clickString)
-			fmt.Println(hilit)
-			eventsCollection = append(eventsCollection, hilit)
-			if diagnostics {
-
-				fmt.Println("Diagnostics: ", hilit.BaseEvent.Diagnostic())
-				fmt.Println(hilit.Command,
-					hilit.Type,
-					hilit.IdFieldsStr)
-			}
-		case R_VIDEO:
-			video := NewVideoPlaybackEvent(clickString)
-			fmt.Println(video)
-			eventsCollection = append(eventsCollection, video)
-			if diagnostics {
-
-				fmt.Println("Diagnostics: ", video.BaseEvent.Diagnostic())
-				fmt.Println(video.Id,
-					video.VodPlaybackMode,
-					video.Source,
-					video.PlayBackPosition)
-			}
-		case R_UNIT:
-			unit := NewUnitIdentificationEvent(clickString)
-			fmt.Println(unit)
-			eventsCollection = append(eventsCollection, unit)
-			if diagnostics {
-
-				fmt.Println("Diagnostics: ", unit.BaseEvent.Diagnostic())
-				fmt.Println(unit.PeriodicReports,
-					unit.PollingReports,
-					unit.HighWaterMarkReports,
-					unit.BlackoutOverflowReports,
-					unit.ExceededMaxReportsPerHour,
-					unit.UsedBufferSize,
-					unit.GuideState,
-					unit.TunerInfo,
-					unit.SourceIdTuner0,
-					unit.SourceIdTuner1)
-			}
-
-		}
+	flag.Parse()
+	if flag.Parsed() {
+		inFileName = *flagFileName
+		dirName = *flagDirName
+		inExtension = *flagExtension
+		diagnostics = *flagDiagnostics
+		outputFormat = *flagOutputFormat
+		outputFileName = *flagOutputFile
+	} else {
+		flag.Usage()
+		os.Exit(-1)
 	}
-
-	processJson(eventsCollection, diagnostics)
-	processXml(eventsCollection, diagnostics)
 
 }
 
-func processJson(eventsCollection []interface{}, diagnostics bool) {
+var (
+	inFileName     string
+	dirName        string
+	inExtension    string
+	diagnostics    bool
+	outputFormat   string
+	outputFileName string
+
+	singleFileMode bool
+)
+
+func main() {
+	// 100 files to process concurently
+	concurrency := 2
+	// This is our semaphore/pool
+	sem := make(chan bool, concurrency)
+
+	rand.Seed(int64(time.Now().Second()))
+
+	files := getFilesToProcess()
+
+	for gfileNo, gfile := range files {
+		// if we still have available goroutine in the pool (out of concurrency )
+		sem <- true
+
+		// fire one file to be processed in a goroutine
+		go func(fileNo int, file string) {
+			// Signal end of processing at the end
+			defer func() { <-sem }()
+			eventsCollection := []interface{}{}
+			for i := 0; i < 100; i++ {
+				clickString := GetNextCommand()
+				//fmt.Println("-----------------------------------------------")
+				//fmt.Println("Got: ", clickString)
+				fmt.Printf("Device Id: 0000008B8D72 ")
+				switch CheckCommand(clickString) {
+				case R_AD:
+					adEvent := NewAdEvent(clickString)
+					fmt.Println(adEvent)
+					eventsCollection = append(eventsCollection, adEvent)
+					if diagnostics {
+						fmt.Println("Diagnostics: ", adEvent.BaseEvent.Diagnostic())
+
+						fmt.Println(adEvent.Command,
+							adEvent.Timestamp,
+							adEvent.AdType,
+							adEvent.AdId,
+							adEvent.Serial,
+							adEvent.Checksum,
+							adEvent.Linefeed)
+					}
+				case R_BtnCnfg:
+					btcnfgEvent := NewButtonConfigEvent(clickString)
+					fmt.Println(btcnfgEvent)
+					eventsCollection = append(eventsCollection, btcnfgEvent)
+					if diagnostics {
+						fmt.Println("Diagnostics: ", btcnfgEvent.BaseEvent.Diagnostic())
+						fmt.Println(btcnfgEvent.Command,
+							btcnfgEvent.Timestamp,
+							btcnfgEvent.ButtonId,
+							btcnfgEvent.ButtonType,
+							btcnfgEvent.ButtonText,
+							btcnfgEvent.ButtonVarData,
+							btcnfgEvent.Serial,
+							btcnfgEvent.Checksum,
+							btcnfgEvent.Linefeed)
+					}
+				case R_ChanVrb:
+					channelchange := NewChannelChangeVerboseEvent(clickString)
+					fmt.Println(channelchange)
+					eventsCollection = append(eventsCollection, channelchange)
+					if diagnostics {
+						fmt.Println("Diagnostics: ", channelchange.BaseEvent.Diagnostic())
+						fmt.Println(channelchange.Command,
+							channelchange.Timestamp,
+							channelchange.Channel,
+							channelchange.SourseId,
+							channelchange.ProgramId,
+							channelchange.Auth,
+							channelchange.TunerInfo,
+							channelchange.PreviousState,
+							channelchange.LastKey,
+							channelchange.Serial,
+							channelchange.Checksum,
+							channelchange.Linefeed)
+					}
+				case R_STATE:
+					statechange := NewStateEvent(clickString)
+					fmt.Println(statechange)
+					eventsCollection = append(eventsCollection, statechange)
+					if diagnostics {
+						fmt.Println("Diagnostics: ", statechange.BaseEvent.Diagnostic())
+						fmt.Println(statechange.Command,
+							statechange.State,
+							statechange.PreviousState,
+							statechange.LastKey)
+					}
+				case R_INFO:
+					info := NewInfoScreenEvent(clickString)
+					fmt.Println(info)
+					eventsCollection = append(eventsCollection, info)
+					if diagnostics {
+
+						fmt.Println("Diagnostics: ", info.BaseEvent.Diagnostic())
+						fmt.Println(info.Command,
+							info.Type,
+							info.Id)
+					}
+				case R_KEY:
+					key := NewKeyPressEvent(clickString)
+					fmt.Println(key)
+					eventsCollection = append(eventsCollection, key)
+					if diagnostics {
+
+						fmt.Println("Diagnostics: ", key.BaseEvent.Diagnostic())
+						fmt.Println(key.Command,
+							key.KeyCode)
+					}
+				case R_HIGHLIGHT:
+					hilit := NewHighlightEvent(clickString)
+					fmt.Println(hilit)
+					eventsCollection = append(eventsCollection, hilit)
+					if diagnostics {
+
+						fmt.Println("Diagnostics: ", hilit.BaseEvent.Diagnostic())
+						fmt.Println(hilit.Command,
+							hilit.Type,
+							hilit.IdFieldsStr)
+					}
+				case R_VIDEO:
+					video := NewVideoPlaybackEvent(clickString)
+					fmt.Println(video)
+					eventsCollection = append(eventsCollection, video)
+					if diagnostics {
+
+						fmt.Println("Diagnostics: ", video.BaseEvent.Diagnostic())
+						fmt.Println(video.Id,
+							video.VodPlaybackMode,
+							video.Source,
+							video.PlayBackPosition)
+					}
+				case R_UNIT:
+					unit := NewUnitIdentificationEvent(clickString)
+					fmt.Println(unit)
+					eventsCollection = append(eventsCollection, unit)
+					if diagnostics {
+
+						fmt.Println("Diagnostics: ", unit.BaseEvent.Diagnostic())
+						fmt.Println(unit.PeriodicReports,
+							unit.PollingReports,
+							unit.HighWaterMarkReports,
+							unit.BlackoutOverflowReports,
+							unit.ExceededMaxReportsPerHour,
+							unit.UsedBufferSize,
+							unit.GuideState,
+							unit.TunerInfo,
+							unit.SourceIdTuner0,
+							unit.SourceIdTuner1)
+					}
+
+				}
+			}
+			fileNameToSave := getFileNameToSave(file, fileNo)
+			switch outputFormat {
+			case jsonOutput:
+				processJson(fileNameToSave, eventsCollection)
+			case xmlOutput:
+				processXml(fileNameToSave, eventsCollection)
+			case txtOutput:
+				processText(fileNameToSave, eventsCollection)
+			}
+		}(gfileNo, gfile)
+	}
+
+	// waiting for all goroutines to end
+	for i := 0; i < cap(sem); i++ {
+		sem <- true
+	}
+
+}
+
+func getFileNameToSave(currentFileName string, fileNo int) string {
+	if singleFileMode {
+		return validateOutFileName(outputFileName)
+	}
+	return validateOutFileName(fmt.Sprintf("%s-%d", currentFileName, fileNo))
+}
+
+func getFilesToProcess() []string {
+	fileList := []string{}
+	singleFileMode = false
+
+	if dirName == "" {
+		if inFileName != "" {
+			// no Dir name provided, but file name provided =>
+			// Single file mode
+			singleFileMode = true
+			fileList = append(fileList, inFileName)
+			return fileList
+		} else {
+			// no Dir name, no file name
+			fmt.Println("Input file name or working directory is not provided")
+			flag.Usage()
+			os.Exit(-1)
+		}
+	}
+
+	// We have working directory - takes over single file name, if both provided
+	err := filepath.Walk(dirName, func(path string, f os.FileInfo, _ error) error {
+		// fmt.Println("adding to the list: ", path)
+		fileList = append(fileList, path)
+		return nil
+	})
+
+	if err != nil {
+		fmt.Println("Error getting files list: ", err)
+		os.Exit(-1)
+	}
+
+	return fileList
+}
+
+func processText(filename string, eventsCollection []interface{}) {
+
+	//	for event := range eventsCollection {
+
+	//	}
+}
+
+func processJson(filename string, eventsCollection []interface{}) {
 	jsonString, err := generateJson(eventsCollection)
 	if diagnostics {
 		fmt.Println(string(jsonString))
 	}
 	if err == nil {
-		err = saveJsonToFile(jsonString)
+		err = saveJsonToFile(filename, jsonString)
 		if err != nil {
 			fmt.Println("Error writing Json file:", err)
 		}
@@ -318,13 +434,13 @@ func processJson(eventsCollection []interface{}, diagnostics bool) {
 
 }
 
-func processXml(eventsCollection []interface{}, diagnostics bool) {
+func processXml(filename string, eventsCollection []interface{}) {
 	xmlString, err := generateXml(eventsCollection)
 	if diagnostics {
 		fmt.Println(string(xmlString))
 	}
 	if err == nil {
-		err = saveXmlToFile(xmlString)
+		err = saveXmlToFile(filename, xmlString)
 		if err != nil {
 			fmt.Println("Error writing XML file:", err)
 		}

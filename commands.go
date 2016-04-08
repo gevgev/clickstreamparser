@@ -392,3 +392,56 @@ func (key KeyPressEvent) String() string {
 		key.BaseEvent,
 		key.Key)
 }
+
+// ---------- Unit Identification: U, 55 --------------------
+
+type UnitIdentificationEvent struct {
+	*BaseEvent
+	UnitAddress               string
+	HardwareType              string
+	SoftwareVersion           string
+	Profile                   string
+	PeriodicReports           string
+	PollingReports            string
+	HighWaterMarkReports      string
+	BlackoutOverflowReports   string
+	ExceededMaxReportsPerHour string
+	UsedBufferSize            string
+	GuideState                string
+	TunerInfo                 string
+	SourceIdTuner0            string
+	SourceIdTuner1            string
+}
+
+func NewUnitIdentificationEvent(clickString string) *UnitIdentificationEvent {
+	unit := new(UnitIdentificationEvent)
+	unit.BaseEvent = NewBaseEvent(clickString)
+	//																					????
+	// 55 442877A6 00059CAA29 32 33322E343400 0200 00 00 00 00 00 00 00 00 0000 0000 00000000000000000000 00 7F 0A
+	// 55 4428839D 00008B8D72 32 33322E343400 0200 00 00 00 00 00 00 00 00 0000 0000 00000000000000000000 00 66 0A
+	unit.UnitAddress = clickString[10:20]
+	unit.HardwareType = clickString[20:22]
+	unit.SoftwareVersion = convertToString(clickString[22:34])
+	unit.Profile = clickString[34:38]
+	unit.PeriodicReports = clickString[38:40]
+	unit.PollingReports = clickString[40:42]
+	unit.HighWaterMarkReports = clickString[42:44]
+	unit.BlackoutOverflowReports = clickString[44:46]
+	unit.ExceededMaxReportsPerHour = clickString[46:48]
+	unit.UsedBufferSize = clickString[48:50]
+	unit.GuideState = clickString[50:52]
+	unit.TunerInfo = clickString[52:54]
+	unit.SourceIdTuner0 = clickString[54:58]
+	unit.SourceIdTuner1 = clickString[58:62]
+
+	return unit
+}
+
+func (unit UnitIdentificationEvent) String() string {
+	return fmt.Sprintf("%s\tAddr:[%s]\tHardware:[%s]\tSoftware:[%s]\tProfile:[%s]",
+		unit.BaseEvent,
+		unit.UnitAddress,
+		unit.HardwareType,
+		unit.SoftwareVersion,
+		unit.Profile)
+}

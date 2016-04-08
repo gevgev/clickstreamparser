@@ -25,13 +25,15 @@ const (
 
 	test_KEY_I = "4944287C545600EBE822D55B0A"
 	//test_KEY_J = "4A?"
-	//                      ^^
+	//test_KEY_K = array of samples below
 	//test_KEY_L = "4C?"
-	test_KEY_M = "4D4428629E4500140161EBA10A"
-	test_KEY_P = "50442877A600000002250A"
-	test_KEY_S = "5344287C58F8E211EF930A"
-	test_KEY_U = "55442877A600059CAA293233322E343400020000000000000000000000000000000000000000000000007F0A"
-	test_KEY_V = "5644287C5600000000EBE8220656FFFFD7460A"
+	test_KEY_M  = "4D4428629E4500140161EBA10A"
+	test_KEY_P  = "50442877A600000002250A"
+	test_KEY_S  = "5344287C58F8E211EF930A"
+	test_KEY_U  = "55442877A600059CAA293233322E343400020000000000000000000000000000000000000000000000007F0A"
+	test_KEY_U1 = "55442841ED000038FD833233322E343400020000000000000000000000000000000000000000000000002A0A"
+	test_KEY_U2 = "554428839D00008B8D723233322E34340002000000000000000000000000000000000000000000000000660A"
+	test_KEY_V  = "5644287C5600000000EBE8220656FFFFD7460A"
 )
 
 var test_KEY_K = [...]string{"4B44287C4D00DE6D0A",
@@ -120,6 +122,7 @@ const (
 	R_INFO      Command = "49"
 	R_VIDEO     Command = "56"
 	R_KEY       Command = "4B"
+	R_UNIT      Command = "55"
 )
 
 var answers = []string{
@@ -134,15 +137,18 @@ var answers = []string{
 		test_KEY_H3,
 		test_KEY_H4,
 		test_KEY_H5,
-		test_KEY_H6, */
-	test_KEY_V,
+		test_KEY_H6,
+		test_KEY_V, */
+	test_KEY_U,
+	test_KEY_U1,
+	test_KEY_U2,
 }
 
 func GetNextCommand() string {
 	//return "4100112233445566778899AABBCCDDEEFF"
 
-	//return answers[rand.Intn(len(answers))]
-	return test_KEY_K[rand.Intn(len(test_KEY_K))]
+	return answers[rand.Intn(len(answers))]
+	//return test_KEY_K[rand.Intn(len(test_KEY_K))]
 }
 
 func CheckCommand(clickString string) Command {
@@ -152,7 +158,7 @@ func CheckCommand(clickString string) Command {
 func main() {
 	rand.Seed(int64(time.Now().Second()))
 
-	for i := 0; i < 200; i++ {
+	for i := 0; i < 5; i++ {
 		clickString := GetNextCommand()
 		fmt.Println("-----------------------------------------------")
 		fmt.Println("Got: ", clickString)
@@ -233,6 +239,21 @@ func main() {
 				video.VodPlaybackMode,
 				video.Source,
 				video.PlayBackPosition)
+		case R_UNIT:
+			unit := NewUnitIdentificationEvent(clickString)
+			fmt.Printf("Unit Ident event: %s\n", unit)
+			fmt.Println("Diagnostics: ", unit.BaseEvent.Diagnostic())
+			fmt.Println(unit.PeriodicReports,
+				unit.PollingReports,
+				unit.HighWaterMarkReports,
+				unit.BlackoutOverflowReports,
+				unit.ExceededMaxReportsPerHour,
+				unit.UsedBufferSize,
+				unit.GuideState,
+				unit.TunerInfo,
+				unit.SourceIdTuner0,
+				unit.SourceIdTuner1)
+
 		}
 	}
 }

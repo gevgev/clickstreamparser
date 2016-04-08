@@ -14,7 +14,7 @@ func generateJson(events []interface{}) ([]byte, error) {
 	return b, nil
 }
 
-func saveToFile(jsonStr []byte) error {
+func saveJsonToFile(jsonStr []byte) error {
 	err := ioutil.WriteFile("events.json", jsonStr, 0644)
 	return err
 }

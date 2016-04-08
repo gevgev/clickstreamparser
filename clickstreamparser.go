@@ -297,16 +297,39 @@ func main() {
 		}
 	}
 
+	processJson(eventsCollection, diagnostics)
+	processXml(eventsCollection, diagnostics)
+
+}
+
+func processJson(eventsCollection []interface{}, diagnostics bool) {
 	jsonString, err := generateJson(eventsCollection)
 	if diagnostics {
 		fmt.Println(string(jsonString))
 	}
 	if err == nil {
-		err = saveToFile(jsonString)
+		err = saveJsonToFile(jsonString)
 		if err != nil {
 			fmt.Println("Error writing Json file:", err)
 		}
 	} else {
 		fmt.Println(err)
 	}
+
+}
+
+func processXml(eventsCollection []interface{}, diagnostics bool) {
+	xmlString, err := generateXml(eventsCollection)
+	if diagnostics {
+		fmt.Println(string(xmlString))
+	}
+	if err == nil {
+		err = saveXmlToFile(xmlString)
+		if err != nil {
+			fmt.Println("Error writing XML file:", err)
+		}
+	} else {
+		fmt.Println(err)
+	}
+
 }

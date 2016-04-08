@@ -194,3 +194,146 @@ func (info InfoScreenEvent) String() string {
 		info.Id)
 
 }
+
+// ---------- Highlight: H, 48 --------------------
+
+// -----------IdFields struct for Highlight -------
+type IdFields struct {
+	HighlightType string
+	// L or B or G
+	ProgramId string
+	SourceId  string
+	// G
+	GridTime time.Time
+	// M or Q
+	MenuId   string
+	ButtonId string
+	// A
+	Position string
+	// A  or O
+	FunctionCode string
+	// S
+	OptionCode  string
+	OptionValue string
+	// K
+	KeyCode string
+	// D
+	AdId string
+	// V
+	AssetOrSourceId string
+	TemplateId      string
+	ObjectId        string
+	// Common
+	Filler string
+}
+
+func NewIdFields(hiType, clickString string) *IdFields {
+	idFields := new(IdFields)
+	idFields.HighlightType = hiType
+
+	switch idFields.HighlightType {
+	case "L", "B":
+		idFields.ProgramId = clickString[0:6]
+		idFields.SourceId = clickString[6:10]
+		idFields.Filler = clickString[10:18]
+	case "G":
+		idFields.ProgramId = clickString[0:6]
+		idFields.SourceId = clickString[6:10]
+		idFields.GridTime = convertToTime(clickString[10:18])
+	case "M", "Q":
+		idFields.MenuId = clickString[0:4]
+		idFields.ButtonId = clickString[4:8]
+		idFields.Filler = clickString[8:18]
+	case "A":
+		idFields.ProgramId = clickString[0:2]
+		idFields.FunctionCode = clickString[2:6]
+		idFields.Filler = clickString[6:18]
+	case "O":
+		idFields.FunctionCode = clickString[0:4]
+		idFields.Filler = clickString[4:18]
+	case "S":
+		idFields.OptionCode = clickString[0:2]
+		idFields.OptionValue = clickString[2:4]
+		idFields.Filler = clickString[4:18]
+	case "K":
+		idFields.KeyCode = clickString[0:2]
+		idFields.Filler = clickString[2:18]
+	case "D":
+		idFields.AdId = clickString[0:6]
+		idFields.Filler = clickString[6:18]
+	case "V":
+		idFields.AssetOrSourceId = clickString[0:8]
+		idFields.TemplateId = clickString[8:12]
+		idFields.ObjectId = clickString[12:16]
+	}
+	return idFields
+}
+
+func (idFields IdFields) String() string {
+	var str string
+
+	switch idFields.HighlightType {
+	case "L", "B":
+		str = fmt.Sprintf("Program Id: %s\t SourceId %s",
+			idFields.ProgramId,
+			idFields.SourceId)
+	case "G":
+		str = fmt.Sprintf("Program Id: %s\t SourceId %s \t Grid Time: %s ",
+			idFields.ProgramId,
+			idFields.SourceId,
+			idFields.GridTime)
+	case "M", "Q":
+		str = fmt.Sprintf("Menu Id: %s \t Button Id: %s ",
+			idFields.MenuId,
+			idFields.ButtonId)
+	case "A":
+		str = fmt.Sprintf("Program Id: %s\t Function Code: %s",
+			idFields.ProgramId,
+			idFields.FunctionCode)
+	case "O":
+		str = fmt.Sprintf("Function Code: %s",
+			idFields.FunctionCode)
+	case "S":
+		str = fmt.Sprintf("Option Code: %s\t Option Value: %s",
+			idFields.OptionCode,
+			idFields.OptionValue)
+	case "K":
+		str = fmt.Sprintf("Key Code: %s\t",
+			idFields.KeyCode)
+	case "D":
+		str = fmt.Sprintf("Ad Id: %s\t",
+			idFields.AdId)
+	case "V":
+		str = fmt.Sprintf("Asset/Source Id: %s\t Template Id: %s\t Object Id: %s",
+			idFields.AssetOrSourceId,
+			idFields.TemplateId,
+			idFields.ObjectId)
+	}
+	return str
+}
+
+// ---------- Highlight: H, 48 --------------------
+type HighlightEvent struct {
+	*BaseEvent
+	Type        string
+	IdFieldsStr string
+	*IdFields
+}
+
+func NewHighlightEvent(clickString string) *HighlightEvent {
+	hilit := new(HighlightEvent)
+	hilit.BaseEvent = NewBaseEvent(clickString)
+	//
+	// 48 44287C6B 47 486A7926D244286060 FA D5 0A
+	hilit.Type = convertToString(clickString[10:12])
+	hilit.IdFieldsStr = clickString[12:30]
+	hilit.IdFields = NewIdFields(hilit.Type, hilit.IdFieldsStr)
+	return hilit
+}
+
+func (hilit HighlightEvent) String() string {
+	return fmt.Sprintf("%s\tType:[%s]\tIdFileds:[%s]",
+		hilit.BaseEvent,
+		hilit.Type,
+		hilit.IdFields)
+}

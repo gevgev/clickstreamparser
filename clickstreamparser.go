@@ -162,6 +162,8 @@ func main() {
 
 	diagnostics := false
 
+	eventsCollection := []interface{}{}
+
 	for i := 0; i < 100; i++ {
 		clickString := GetNextCommand()
 		//fmt.Println("-----------------------------------------------")
@@ -171,6 +173,7 @@ func main() {
 		case R_AD:
 			adEvent := NewAdEvent(clickString)
 			fmt.Println(adEvent)
+			eventsCollection = append(eventsCollection, adEvent)
 			if diagnostics {
 				fmt.Println("Diagnostics: ", adEvent.BaseEvent.Diagnostic())
 
@@ -185,6 +188,7 @@ func main() {
 		case R_BtnCnfg:
 			btcnfgEvent := NewButtonConfigEvent(clickString)
 			fmt.Println(btcnfgEvent)
+			eventsCollection = append(eventsCollection, btcnfgEvent)
 			if diagnostics {
 				fmt.Println("Diagnostics: ", btcnfgEvent.BaseEvent.Diagnostic())
 				fmt.Println(btcnfgEvent.Command,
@@ -200,6 +204,7 @@ func main() {
 		case R_ChanVrb:
 			channelchange := NewChannelChangeVerboseEvent(clickString)
 			fmt.Println(channelchange)
+			eventsCollection = append(eventsCollection, channelchange)
 			if diagnostics {
 				fmt.Println("Diagnostics: ", channelchange.BaseEvent.Diagnostic())
 				fmt.Println(channelchange.Command,
@@ -218,6 +223,7 @@ func main() {
 		case R_STATE:
 			statechange := NewStateEvent(clickString)
 			fmt.Println(statechange)
+			eventsCollection = append(eventsCollection, statechange)
 			if diagnostics {
 				fmt.Println("Diagnostics: ", statechange.BaseEvent.Diagnostic())
 				fmt.Println(statechange.Command,
@@ -228,6 +234,7 @@ func main() {
 		case R_INFO:
 			info := NewInfoScreenEvent(clickString)
 			fmt.Println(info)
+			eventsCollection = append(eventsCollection, info)
 			if diagnostics {
 
 				fmt.Println("Diagnostics: ", info.BaseEvent.Diagnostic())
@@ -238,6 +245,7 @@ func main() {
 		case R_KEY:
 			key := NewKeyPressEvent(clickString)
 			fmt.Println(key)
+			eventsCollection = append(eventsCollection, key)
 			if diagnostics {
 
 				fmt.Println("Diagnostics: ", key.BaseEvent.Diagnostic())
@@ -247,6 +255,7 @@ func main() {
 		case R_HIGHLIGHT:
 			hilit := NewHighlightEvent(clickString)
 			fmt.Println(hilit)
+			eventsCollection = append(eventsCollection, hilit)
 			if diagnostics {
 
 				fmt.Println("Diagnostics: ", hilit.BaseEvent.Diagnostic())
@@ -257,6 +266,7 @@ func main() {
 		case R_VIDEO:
 			video := NewVideoPlaybackEvent(clickString)
 			fmt.Println(video)
+			eventsCollection = append(eventsCollection, video)
 			if diagnostics {
 
 				fmt.Println("Diagnostics: ", video.BaseEvent.Diagnostic())
@@ -268,6 +278,7 @@ func main() {
 		case R_UNIT:
 			unit := NewUnitIdentificationEvent(clickString)
 			fmt.Println(unit)
+			eventsCollection = append(eventsCollection, unit)
 			if diagnostics {
 
 				fmt.Println("Diagnostics: ", unit.BaseEvent.Diagnostic())
@@ -284,5 +295,18 @@ func main() {
 			}
 
 		}
+	}
+
+	jsonString, err := generateJson(eventsCollection)
+	if diagnostics {
+		fmt.Println(string(jsonString))
+	}
+	if err == nil {
+		err = saveToFile(jsonString)
+		if err != nil {
+			fmt.Println("Error writing Json file:", err)
+		}
+	} else {
+		fmt.Println(err)
 	}
 }

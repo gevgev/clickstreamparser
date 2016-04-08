@@ -337,3 +337,34 @@ func (hilit HighlightEvent) String() string {
 		hilit.Type,
 		hilit.IdFields)
 }
+
+// ---------- Video Playback: V, 56 --------------------
+
+type VideoPlaybackEvent struct {
+	*BaseEvent
+	Id               string
+	VodPlaybackMode  string
+	Source           string
+	PlayBackPosition string
+}
+
+func NewVideoPlaybackEvent(clickString string) *VideoPlaybackEvent {
+	video := new(VideoPlaybackEvent)
+	video.BaseEvent = NewBaseEvent(clickString)
+
+	video.Id = clickString[10:24]
+	video.VodPlaybackMode = clickString[24:26]
+	video.Source = convertToString(clickString[26:28])
+	video.PlayBackPosition = clickString[28:32]
+
+	return video
+}
+
+func (video VideoPlaybackEvent) String() string {
+	return fmt.Sprintf("%s\tId:[%s]\tVOD Playback Mode:[%s]\t Source [%s]\t Playback Position: [%s]",
+		video.BaseEvent,
+		video.Id,
+		video.VodPlaybackMode,
+		video.Source,
+		video.PlayBackPosition)
+}

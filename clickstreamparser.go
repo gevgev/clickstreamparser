@@ -42,6 +42,7 @@ const (
 	R_STATE     Command = "53"
 	R_HIGHLIGHT Command = "48"
 	R_INFO      Command = "49"
+	R_VIDEO     Command = "56"
 )
 
 var answers = []string{
@@ -49,14 +50,15 @@ var answers = []string{
 		test_KEY_B,
 		test_KEY_C,
 		test_KEY_S,
-		test_KEY_I, */
-	test_KEY_H,
-	test_KEY_H1,
-	test_KEY_H2,
-	test_KEY_H3,
-	test_KEY_H4,
-	test_KEY_H5,
-	test_KEY_H6,
+		test_KEY_I,
+		test_KEY_H,
+		test_KEY_H1,
+		test_KEY_H2,
+		test_KEY_H3,
+		test_KEY_H4,
+		test_KEY_H5,
+		test_KEY_H6, */
+	test_KEY_V,
 }
 
 func GetNextCommand() string {
@@ -138,6 +140,14 @@ func main() {
 			fmt.Println(hilit.Command,
 				hilit.Type,
 				hilit.IdFieldsStr)
+		case R_VIDEO:
+			video := NewVideoPlaybackEvent(clickString)
+			fmt.Printf("Video event: %s\n", video)
+			fmt.Println("Diagnostics: ", video.BaseEvent.Diagnostic())
+			fmt.Println(video.Id,
+				video.VodPlaybackMode,
+				video.Source,
+				video.PlayBackPosition)
 		}
 	}
 }

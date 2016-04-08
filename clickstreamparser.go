@@ -173,6 +173,8 @@ func init() {
 	flagDiagnostics := flag.Bool("t", false, "Turns diagnostic messages On")
 	flagOutputFormat := flag.String("o", txtOutput, "Output formats: txt(default), json, xml")
 	flagOutputFile := flag.String("fo", "output.txt", "Output file name, default is output.txt")
+	flagConcurrency := flag.Int("c", 100, "The number of files to process concurrently")
+	flagVerbose := flag.Bool("v", true, "Verbose: outputs to the screen")
 
 	flag.Parse()
 	if flag.Parsed() {
@@ -182,6 +184,8 @@ func init() {
 		diagnostics = *flagDiagnostics
 		outputFormat = *flagOutputFormat
 		outputFileName = *flagOutputFile
+		concurrency = *flagConcurrency
+		verbose = *flagVerbose
 	} else {
 		flag.Usage()
 		os.Exit(-1)
@@ -196,13 +200,12 @@ var (
 	diagnostics    bool
 	outputFormat   string
 	outputFileName string
-
+	concurrency    int
+	verbose        bool
 	singleFileMode bool
 )
 
 func main() {
-	// 100 files to process concurently
-	concurrency := 2
 	// This is our semaphore/pool
 	sem := make(chan bool, concurrency)
 
@@ -223,11 +226,15 @@ func main() {
 				clickString := GetNextCommand()
 				//fmt.Println("-----------------------------------------------")
 				//fmt.Println("Got: ", clickString)
-				fmt.Printf("Device Id: 0000008B8D72 ")
+				if verbose {
+					fmt.Printf("Device Id: 0000008B8D72 ")
+				}
 				switch CheckCommand(clickString) {
 				case R_AD:
 					adEvent := NewAdEvent(clickString)
-					fmt.Println(adEvent)
+					if verbose {
+						fmt.Println(adEvent)
+					}
 					eventsCollection = append(eventsCollection, adEvent)
 					if diagnostics {
 						fmt.Println("Diagnostics: ", adEvent.BaseEvent.Diagnostic())
@@ -242,7 +249,9 @@ func main() {
 					}
 				case R_BtnCnfg:
 					btcnfgEvent := NewButtonConfigEvent(clickString)
-					fmt.Println(btcnfgEvent)
+					if verbose {
+						fmt.Println(btcnfgEvent)
+					}
 					eventsCollection = append(eventsCollection, btcnfgEvent)
 					if diagnostics {
 						fmt.Println("Diagnostics: ", btcnfgEvent.BaseEvent.Diagnostic())
@@ -258,7 +267,9 @@ func main() {
 					}
 				case R_ChanVrb:
 					channelchange := NewChannelChangeVerboseEvent(clickString)
-					fmt.Println(channelchange)
+					if verbose {
+						fmt.Println(channelchange)
+					}
 					eventsCollection = append(eventsCollection, channelchange)
 					if diagnostics {
 						fmt.Println("Diagnostics: ", channelchange.BaseEvent.Diagnostic())
@@ -277,7 +288,9 @@ func main() {
 					}
 				case R_STATE:
 					statechange := NewStateEvent(clickString)
-					fmt.Println(statechange)
+					if verbose {
+						fmt.Println(statechange)
+					}
 					eventsCollection = append(eventsCollection, statechange)
 					if diagnostics {
 						fmt.Println("Diagnostics: ", statechange.BaseEvent.Diagnostic())
@@ -288,7 +301,9 @@ func main() {
 					}
 				case R_INFO:
 					info := NewInfoScreenEvent(clickString)
-					fmt.Println(info)
+					if verbose {
+						fmt.Println(info)
+					}
 					eventsCollection = append(eventsCollection, info)
 					if diagnostics {
 
@@ -299,7 +314,9 @@ func main() {
 					}
 				case R_KEY:
 					key := NewKeyPressEvent(clickString)
-					fmt.Println(key)
+					if verbose {
+						fmt.Println(key)
+					}
 					eventsCollection = append(eventsCollection, key)
 					if diagnostics {
 
@@ -309,7 +326,9 @@ func main() {
 					}
 				case R_HIGHLIGHT:
 					hilit := NewHighlightEvent(clickString)
-					fmt.Println(hilit)
+					if verbose {
+						fmt.Println(hilit)
+					}
 					eventsCollection = append(eventsCollection, hilit)
 					if diagnostics {
 
@@ -320,7 +339,9 @@ func main() {
 					}
 				case R_VIDEO:
 					video := NewVideoPlaybackEvent(clickString)
-					fmt.Println(video)
+					if verbose {
+						fmt.Println(video)
+					}
 					eventsCollection = append(eventsCollection, video)
 					if diagnostics {
 
@@ -332,7 +353,9 @@ func main() {
 					}
 				case R_UNIT:
 					unit := NewUnitIdentificationEvent(clickString)
-					fmt.Println(unit)
+					if verbose {
+						fmt.Println(unit)
+					}
 					eventsCollection = append(eventsCollection, unit)
 					if diagnostics {
 

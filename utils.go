@@ -39,3 +39,7 @@ func convertToString(str string) string {
 	}
 	return ""
 }
+
+func lookUpKeyName(keyCode int) string {
+	return KeyName[keyCode]
+}

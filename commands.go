@@ -368,3 +368,27 @@ func (video VideoPlaybackEvent) String() string {
 		video.Source,
 		video.PlayBackPosition)
 }
+
+// ---------- Key Press: K, 4B --------------------
+
+type KeyPressEvent struct {
+	*BaseEvent
+	Key     string
+	KeyCode int
+}
+
+func NewKeyPressEvent(clickString string) *KeyPressEvent {
+	key := new(KeyPressEvent)
+	key.BaseEvent = NewBaseEvent(clickString)
+
+	key.KeyCode = int(convertToInt(clickString[10:12]))
+	key.Key = lookUpKeyName(key.KeyCode)
+
+	return key
+}
+
+func (key KeyPressEvent) String() string {
+	return fmt.Sprintf("%s\tKey:[%s]",
+		key.BaseEvent,
+		key.Key)
+}

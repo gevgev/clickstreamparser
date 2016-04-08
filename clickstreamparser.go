@@ -1,118 +1,14 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
-	"math/rand"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 )
-
-const (
-	test_KEY_A = "4144287C7000AB5ADBF2B0E50A"
-	test_KEY_B = "424427ABE800F70B0C4D6F746F722053706F727473030B4D6F746F7273706F7274733164646464643164306464306430303164646464646464646464303030303030303130303030303030303030303030303030608C0A"
-	test_KEY_C = "43442878E201F82B5742AE4741000713AF3B0A"
-	test_KEY_D = "44287C448C4D04DA04D60000000000DDA20A"
-	test_KEY_E = "45442852144444535800585E0F44277150FF7536E8B2C3EF58585300000064680A"
-	//test_KEY_F = "46?"
-	test_KEY_G = "4744287C560C5050503A504149442D504944D8450A"
-	//						^^
-	test_KEY_H  = "4844287C6B47486A7926D244286060FAD50A"
-	test_KEY_H1 = "4844287C4C4D04DA04D60000000000DDA20A"
-	test_KEY_H2 = "4844287C7C51000003A20000000000F36B0A"
-	test_KEY_H3 = "4844287C7044AB5ADF000000000000AE8A0A"
-	test_KEY_H4 = "48442878D74F007200000000000000A3990A"
-	test_KEY_H5 = "4844287C554234E74E417A0000000069AC0A"
-	test_KEY_H6 = "4844287C5D4100000100000000000077BA0A"
-
-	test_KEY_I = "4944287C545600EBE822D55B0A"
-	//test_KEY_J = "4A?"
-	//test_KEY_K = array of samples below
-	//test_KEY_L = "4C?"
-	test_KEY_M  = "4D4428629E4500140161EBA10A"
-	test_KEY_P  = "50442877A600000002250A"
-	test_KEY_S  = "5344287C58F8E211EF930A"
-	test_KEY_U  = "55442877A600059CAA293233322E343400020000000000000000000000000000000000000000000000007F0A"
-	test_KEY_U1 = "55442841ED000038FD833233322E343400020000000000000000000000000000000000000000000000002A0A"
-	test_KEY_U2 = "554428839D00008B8D723233322E34340002000000000000000000000000000000000000000000000000660A"
-	test_KEY_V  = "5644287C5600000000EBE8220656FFFFD7460A"
-)
-
-var test_KEY_K = [...]string{"4B44287C4D00DE6D0A",
-	"4B44287C4D01DE6D0A",
-	"4B44287C4D02DE6D0A",
-	"4B44287C4D0ADE6D0A",
-	"4B44287C4D0BDE6D0A",
-	"4B44287C4D0CDE6D0A",
-	"4B44287C4D0DDE6D0A",
-	"4B44287C4D0EDE6D0A",
-	"4B44287C4D0FDE6D0A",
-	"4B44287C4D10DE6D0A",
-	"4B44287C4D11DE6D0A",
-	"4B44287C4D12DE6D0A",
-	"4B44287C4D13DE6D0A",
-	"4B44287C4D14DE6D0A",
-	"4B44287C4D15DE6D0A",
-	"4B44287C4D16DE6D0A",
-	"4B44287C4D17DE6D0A",
-	"4B44287C4D18DE6D0A",
-	"4B44287C4D19DE6D0A",
-	"4B44287C4D1ADE6D0A",
-	"4B44287C4D1BDE6D0A",
-	"4B44287C4D1CDE6D0A",
-	"4B44287C4D1DDE6D0A",
-	"4B44287C4D1EDE6D0A",
-	"4B44287C4D1FDE6D0A",
-	"4B44287C4D20DE6D0A",
-	"4B44287C4D21DE6D0A",
-	"4B44287C4D22DE6D0A",
-	"4B44287C4D23DE6D0A",
-	"4B44287C4D24DE6D0A",
-	"4B44287C4D25DE6D0A",
-	"4B44287C4D26DE6D0A",
-	"4B44287C4D27DE6D0A",
-	"4B44287C4D28DE6D0A",
-	"4B44287C4D29DE6D0A",
-	"4B44287C4D2ADE6D0A",
-	"4B44287C4D2BDE6D0A",
-	"4B44287C4D2CDE6D0A",
-	"4B44287C4D2DDE6D0A",
-	"4B44287C4D2EDE6D0A",
-	"4B44287C4D2FDE6D0A",
-	"4B44287C4D30DE6D0A",
-	"4B44287C4D31DE6D0A",
-	"4B44287C4D32DE6D0A",
-	"4B44287C4D33DE6D0A",
-	"4B44287C4D34DE6D0A",
-	"4B44287C4D35DE6D0A",
-	"4B44287C4D36DE6D0A",
-	"4B44287C4D37DE6D0A",
-	"4B44287C4D38DE6D0A",
-	"4B44287C4D39DE6D0A",
-	"4B44287C4D3ADE6D0A",
-	"4B44287C4D3BDE6D0A",
-	"4B44287C4D3CDE6D0A",
-	"4B44287C4D3DDE6D0A",
-	"4B44287C4D3EDE6D0A",
-	"4B44287C4D3FDE6D0A",
-	"4B44287C4D40DE6D0A",
-	"4B44287C4D41DE6D0A",
-	"4B44287C4D42DE6D0A",
-	"4B44287C4D43DE6D0A",
-	"4B44287C4D44DE6D0A",
-	"4B44287C4D45DE6D0A",
-	"4B44287C4D46DE6D0A",
-	"4B44287C4D47DE6D0A",
-	"4B44287C4D48DE6D0A",
-	"4B44287C4D49DE6D0A",
-	"4B44287C4D4ADE6D0A",
-	"4B44287C4D4BDE6D0A",
-	"4B44287C4D4CDE6D0A",
-	"4B44287C4D4DDE6D0A",
-	"4B44287C4D4EDE6D0A",
-	"4B44287C4D4FDE6D0A",
-}
 
 type Command string
 
@@ -128,34 +24,6 @@ const (
 	R_UNIT      Command = "55"
 )
 
-var answers = []string{
-	test_KEY_A,
-	test_KEY_B,
-	test_KEY_C,
-	test_KEY_S,
-	test_KEY_I,
-	test_KEY_H,
-	test_KEY_H1,
-	test_KEY_H2,
-	test_KEY_H3,
-	test_KEY_H4,
-	test_KEY_H5,
-	test_KEY_H6,
-	test_KEY_V,
-	test_KEY_U,
-	test_KEY_U1,
-	test_KEY_U2,
-}
-
-func GetNextCommand() string {
-	//return "4100112233445566778899AABBCCDDEEFF"
-	if (rand.Intn(2)) == 1 {
-		return answers[rand.Intn(len(answers))]
-	} else {
-		return test_KEY_K[rand.Intn(len(test_KEY_K))]
-	}
-}
-
 func CheckCommand(clickString string) Command {
 	return Command(clickString[0:2])
 }
@@ -164,15 +32,16 @@ const (
 	txtOutput  = "txt"
 	xmlOutput  = "xml"
 	jsonOutput = "json"
+	rawExt     = "raw"
 )
 
 func init() {
 	flagFileName := flag.String("fi", "", "Single filename to process")
 	flagDirName := flag.String("d", "", "Working folder for input files, default extension *.raw")
-	flagExtension := flag.String("e", "raw", "Input files extension, default is *raw ")
+	flagExtension := flag.String("e", rawExt, "Input files extension")
 	flagDiagnostics := flag.Bool("t", false, "Turns diagnostic messages On")
-	flagOutputFormat := flag.String("o", txtOutput, "Output formats: txt(default), json, xml")
-	flagOutputFile := flag.String("fo", "output.txt", "Output file name, default is output.txt")
+	flagOutputFormat := flag.String("o", txtOutput, "Output formats: txt, json, xml")
+	flagOutputFile := flag.String("fo", "output", "Output file name")
 	flagConcurrency := flag.Int("c", 100, "The number of files to process concurrently")
 	flagVerbose := flag.Bool("v", true, "Verbose: outputs to the screen")
 
@@ -206,32 +75,61 @@ var (
 )
 
 func main() {
+	startTime := time.Now()
+
 	// This is our semaphore/pool
 	sem := make(chan bool, concurrency)
-
-	rand.Seed(int64(time.Now().Second()))
+	totalEventsChan := make(chan int, concurrency)
 
 	files := getFilesToProcess()
 
-	for gfileNo, gfile := range files {
+	totalEvents := 0
+	go func() {
+		for {
+			nn, more := <-totalEventsChan
+			if more {
+				if diagnostics {
+					fmt.Println("Reported: ", nn)
+				}
+				totalEvents += nn
+			} else {
+				if diagnostics {
+					fmt.Println("Got all reports, breaking")
+				}
+				return
+			}
+		}
+	}()
+
+	for _, gfile := range files {
 		// if we still have available goroutine in the pool (out of concurrency )
 		sem <- true
 
 		// fire one file to be processed in a goroutine
-		go func(fileNo int, file string) {
+		go func(fileName string) {
 			// Signal end of processing at the end
 			defer func() { <-sem }()
 			eventsCollection := []interface{}{}
-			for i := 0; i < 100; i++ {
-				clickString := GetNextCommand()
-				//fmt.Println("-----------------------------------------------")
-				//fmt.Println("Got: ", clickString)
-				if verbose {
-					fmt.Printf("Device Id: 0000008B8D72 ")
+
+			file, err := os.Open(fileName)
+			if err != nil {
+				fmt.Println("Error opening file: ", err)
+				return
+			}
+			defer file.Close()
+
+			scanner := bufio.NewScanner(file)
+			for scanner.Scan() {
+				line := scanner.Text()
+				tokens := strings.Split(line, " ")
+				if len(tokens) != 2 {
+					fmt.Println("Wrong file format for: ", fileName)
+					return
 				}
+				deviceId, clickString := tokens[0], tokens[1]
 				switch CheckCommand(clickString) {
 				case R_AD:
-					adEvent := NewAdEvent(clickString)
+					adEvent := NewAdEvent(deviceId, clickString)
 					if verbose {
 						fmt.Println(adEvent)
 					}
@@ -248,7 +146,7 @@ func main() {
 							adEvent.Linefeed)
 					}
 				case R_BtnCnfg:
-					btcnfgEvent := NewButtonConfigEvent(clickString)
+					btcnfgEvent := NewButtonConfigEvent(deviceId, clickString)
 					if verbose {
 						fmt.Println(btcnfgEvent)
 					}
@@ -266,7 +164,7 @@ func main() {
 							btcnfgEvent.Linefeed)
 					}
 				case R_ChanVrb:
-					channelchange := NewChannelChangeVerboseEvent(clickString)
+					channelchange := NewChannelChangeVerboseEvent(deviceId, clickString)
 					if verbose {
 						fmt.Println(channelchange)
 					}
@@ -287,7 +185,7 @@ func main() {
 							channelchange.Linefeed)
 					}
 				case R_STATE:
-					statechange := NewStateEvent(clickString)
+					statechange := NewStateEvent(deviceId, clickString)
 					if verbose {
 						fmt.Println(statechange)
 					}
@@ -300,7 +198,7 @@ func main() {
 							statechange.LastKey)
 					}
 				case R_INFO:
-					info := NewInfoScreenEvent(clickString)
+					info := NewInfoScreenEvent(deviceId, clickString)
 					if verbose {
 						fmt.Println(info)
 					}
@@ -313,7 +211,7 @@ func main() {
 							info.Id)
 					}
 				case R_KEY:
-					key := NewKeyPressEvent(clickString)
+					key := NewKeyPressEvent(deviceId, clickString)
 					if verbose {
 						fmt.Println(key)
 					}
@@ -325,7 +223,7 @@ func main() {
 							key.KeyCode)
 					}
 				case R_HIGHLIGHT:
-					hilit := NewHighlightEvent(clickString)
+					hilit := NewHighlightEvent(deviceId, clickString)
 					if verbose {
 						fmt.Println(hilit)
 					}
@@ -338,7 +236,7 @@ func main() {
 							hilit.IdFieldsStr)
 					}
 				case R_VIDEO:
-					video := NewVideoPlaybackEvent(clickString)
+					video := NewVideoPlaybackEvent(deviceId, clickString)
 					if verbose {
 						fmt.Println(video)
 					}
@@ -352,7 +250,7 @@ func main() {
 							video.PlayBackPosition)
 					}
 				case R_UNIT:
-					unit := NewUnitIdentificationEvent(clickString)
+					unit := NewUnitIdentificationEvent(deviceId, clickString)
 					if verbose {
 						fmt.Println(unit)
 					}
@@ -371,10 +269,16 @@ func main() {
 							unit.SourceIdTuner0,
 							unit.SourceIdTuner1)
 					}
-
 				}
 			}
-			fileNameToSave := getFileNameToSave(file, fileNo)
+
+			if err = scanner.Err(); err != nil {
+				fmt.Printf("Error while processing file: %s: %v\n", fileName, err)
+			}
+			// Reporting number of processed events
+			totalEventsChan <- len(eventsCollection)
+
+			fileNameToSave := formatFileNameToSave(fileName)
 			switch outputFormat {
 			case jsonOutput:
 				processJson(fileNameToSave, eventsCollection)
@@ -383,23 +287,37 @@ func main() {
 			case txtOutput:
 				processText(fileNameToSave, eventsCollection)
 			}
-		}(gfileNo, gfile)
+		}(gfile)
 	}
 
 	// waiting for all goroutines to end
+	if diagnostics {
+		fmt.Println("Waiting for all goroutines to complete the work")
+	}
+
 	for i := 0; i < cap(sem); i++ {
 		sem <- true
 	}
+	// Done all gouroutines, close the total channel
+	if diagnostics {
+		fmt.Println("Closing total events channel")
+	}
+
+	close(totalEventsChan)
+
+	fmt.Printf("Processed %d files, %d events in %v\n", len(files), totalEvents, time.Since(startTime))
 
 }
 
-func getFileNameToSave(currentFileName string, fileNo int) string {
+// Format output file name
+func formatFileNameToSave(currentFileName string) string {
 	if singleFileMode {
 		return validateOutFileName(outputFileName)
 	}
-	return validateOutFileName(fmt.Sprintf("%s-%d", currentFileName, fileNo))
+	return validateOutFileName(currentFileName[:len(currentFileName)-len("."+inExtension)])
 }
 
+// Get the list of files to process in the target folder
 func getFilesToProcess() []string {
 	fileList := []string{}
 	singleFileMode = false
@@ -421,8 +339,9 @@ func getFilesToProcess() []string {
 
 	// We have working directory - takes over single file name, if both provided
 	err := filepath.Walk(dirName, func(path string, f os.FileInfo, _ error) error {
-		// fmt.Println("adding to the list: ", path)
-		fileList = append(fileList, path)
+		if isRawFile(path) {
+			fileList = append(fileList, path)
+		}
 		return nil
 	})
 
@@ -435,10 +354,16 @@ func getFilesToProcess() []string {
 }
 
 func processText(filename string, eventsCollection []interface{}) {
-
-	//	for event := range eventsCollection {
-
-	//	}
+	file, err := os.Create(filename)
+	if err != nil {
+		fmt.Println(err)
+	}
+	w := bufio.NewWriter(file)
+	for _, event := range eventsCollection {
+		fmt.Fprintln(w, event)
+	}
+	w.Flush()
+	file.Close()
 }
 
 func processJson(filename string, eventsCollection []interface{}) {

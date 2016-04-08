@@ -4,4 +4,7 @@ clickstreamparser
 *.out
 *.cs
 *.raw
+*.zip
+*.txt
+tests/*.*
 

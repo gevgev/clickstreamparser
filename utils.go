@@ -49,20 +49,34 @@ func lookUpEventName(code string) string {
 	return EventCodes[code]
 }
 
+func addProperExtension(fileName string) string {
+	switch outputFormat {
+	case xmlOutput:
+		fileName = fileName + "." + xmlOutput
+	case jsonOutput:
+		fileName = fileName + "." + jsonOutput
+	case txtOutput:
+		fileName = fileName + "." + txtOutput
+	}
+	return fileName
+}
+
 func validateOutFileName(fileName string) string {
 	// Check if it has extension
 	// If not, add the default extension
 	ext := filepath.Ext(fileName)
-	if ext == "" {
-		switch outputFormat {
-		case xmlOutput:
-			fileName = fileName + "." + xmlOutput
-		case jsonOutput:
-			fileName = fileName + "." + jsonOutput
-		case txtOutput:
-			fileName = fileName + "." + txtOutput
+	if ext != "" {
+		if isRawFile(fileName) {
+			fileName = fileName[:len(fileName)-len(ext)]
+			fileName = addProperExtension(fileName)
 		}
+	} else if ext == "" {
+		fileName = addProperExtension(fileName)
 	}
 
 	return fileName
+}
+
+func isRawFile(fileName string) bool {
+	return filepath.Ext(fileName) == "."+inExtension
 }

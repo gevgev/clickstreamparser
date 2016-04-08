@@ -16,6 +16,7 @@ type BaseEvent struct {
 	Serial    string
 	Checksum  string
 	Linefeed  string
+	DeviceId  string
 
 	//	Command   [2]string
 	//	Timestamp [8]string
@@ -24,7 +25,7 @@ type BaseEvent struct {
 	//	Linefeed  [1]string
 }
 
-func NewBaseEvent(clickString string) *BaseEvent {
+func NewBaseEvent(deviceId, clickString string) *BaseEvent {
 	bt := new(BaseEvent)
 	// A	time    ... s-n c-s LF
 	// 41 44287C70  ...  B0  E5  0A
@@ -33,11 +34,12 @@ func NewBaseEvent(clickString string) *BaseEvent {
 	bt.Serial = clickString[len(clickString)-6 : len(clickString)-4]
 	bt.Checksum = clickString[len(clickString)-4 : len(clickString)-2]
 	bt.Linefeed = clickString[len(clickString)-2 : len(clickString)]
+	bt.DeviceId = deviceId
 	return bt
 }
 
 func (bt BaseEvent) String() string {
-	return fmt.Sprintf("Timestamp:[%s]\tEvent:[%16s] ", bt.Timestamp, bt.Command)
+	return fmt.Sprintf("DeviceID: [%s]\tTimestamp:[%s]\tEvent:[%16s] ", bt.DeviceId, bt.Timestamp, bt.Command)
 }
 
 func (bt BaseEvent) Diagnostic() string {
@@ -53,9 +55,9 @@ type AdEvent struct {
 	//	AdId      [4]string
 }
 
-func NewAdEvent(clickString string) *AdEvent {
+func NewAdEvent(deviceId, clickString string) *AdEvent {
 	at := new(AdEvent)
-	at.BaseEvent = NewBaseEvent(clickString)
+	at.BaseEvent = NewBaseEvent(deviceId, clickString)
 	// A	time  type  adId   s-n c-s LF
 	// 41 44287C70 00 AB5ADBF2 B0  E5  0A
 	at.AdType = clickString[10:12]
@@ -76,10 +78,10 @@ type ButtonConfigEvent struct {
 	ButtonVarData string
 }
 
-func NewButtonConfigEvent(clickString string) *ButtonConfigEvent {
+func NewButtonConfigEvent(deviceId, clickString string) *ButtonConfigEvent {
 	btcf := new(ButtonConfigEvent)
 
-	btcf.BaseEvent = NewBaseEvent(clickString)
+	btcf.BaseEvent = NewBaseEvent(deviceId, clickString)
 	//
 	//"42 4427ABE8 00F7 0B 0C 4D6F746F722053706F727473 030B4D6F746F7273706F7274733164646464643164306464306430303164646464646464646464303030303030303130303030303030303030303030303030 60 8C 0A"
 	btcf.ButtonId = clickString[10:14]
@@ -110,9 +112,9 @@ type ChannelChangeVerboseEvent struct {
 	LastKey       string
 }
 
-func NewChannelChangeVerboseEvent(clickString string) *ChannelChangeVerboseEvent {
+func NewChannelChangeVerboseEvent(deviceId, clickString string) *ChannelChangeVerboseEvent {
 	channelchange := new(ChannelChangeVerboseEvent)
-	channelchange.BaseEvent = NewBaseEvent(clickString)
+	channelchange.BaseEvent = NewBaseEvent(deviceId, clickString)
 	// C   time     chN  src prgmId A  TI PS LK
 	// 43 442878E2 01F8 2B57 42AE47 41 00 07 13 AF 3B 0A
 
@@ -149,9 +151,9 @@ type StateEvent struct {
 	LastKey       string
 }
 
-func NewStateEvent(clickString string) *StateEvent {
+func NewStateEvent(deviceId, clickString string) *StateEvent {
 	stateEvent := new(StateEvent)
-	stateEvent.BaseEvent = NewBaseEvent(clickString)
+	stateEvent.BaseEvent = NewBaseEvent(deviceId, clickString)
 	//  S   time    S PS LK
 	// 53 44287C58 F8 E2 11 EF 93 0A
 	stateEvent.State = clickString[10:12]
@@ -177,9 +179,9 @@ type InfoScreenEvent struct {
 	Id   string
 }
 
-func NewInfoScreenEvent(clickString string) *InfoScreenEvent {
+func NewInfoScreenEvent(deviceId, clickString string) *InfoScreenEvent {
 	info := new(InfoScreenEvent)
-	info.BaseEvent = NewBaseEvent(clickString)
+	info.BaseEvent = NewBaseEvent(deviceId, clickString)
 	//
 	// 49 44287C54 56 00EBE822 D5 5B 0A
 	info.Type = convertToString(clickString[10:12])
@@ -320,9 +322,9 @@ type HighlightEvent struct {
 	*IdFields
 }
 
-func NewHighlightEvent(clickString string) *HighlightEvent {
+func NewHighlightEvent(deviceId, clickString string) *HighlightEvent {
 	hilit := new(HighlightEvent)
-	hilit.BaseEvent = NewBaseEvent(clickString)
+	hilit.BaseEvent = NewBaseEvent(deviceId, clickString)
 	//
 	// 48 44287C6B 47 486A7926D244286060 FA D5 0A
 	hilit.Type = convertToString(clickString[10:12])
@@ -348,9 +350,9 @@ type VideoPlaybackEvent struct {
 	PlayBackPosition string
 }
 
-func NewVideoPlaybackEvent(clickString string) *VideoPlaybackEvent {
+func NewVideoPlaybackEvent(deviceId, clickString string) *VideoPlaybackEvent {
 	video := new(VideoPlaybackEvent)
-	video.BaseEvent = NewBaseEvent(clickString)
+	video.BaseEvent = NewBaseEvent(deviceId, clickString)
 
 	video.Id = clickString[10:24]
 	video.VodPlaybackMode = clickString[24:26]
@@ -377,9 +379,9 @@ type KeyPressEvent struct {
 	KeyCode int
 }
 
-func NewKeyPressEvent(clickString string) *KeyPressEvent {
+func NewKeyPressEvent(deviceId, clickString string) *KeyPressEvent {
 	key := new(KeyPressEvent)
-	key.BaseEvent = NewBaseEvent(clickString)
+	key.BaseEvent = NewBaseEvent(deviceId, clickString)
 
 	key.KeyCode = int(convertToInt(clickString[10:12]))
 	key.Key = lookUpKeyName(key.KeyCode)
@@ -413,9 +415,9 @@ type UnitIdentificationEvent struct {
 	SourceIdTuner1            string
 }
 
-func NewUnitIdentificationEvent(clickString string) *UnitIdentificationEvent {
+func NewUnitIdentificationEvent(deviceId, clickString string) *UnitIdentificationEvent {
 	unit := new(UnitIdentificationEvent)
-	unit.BaseEvent = NewBaseEvent(clickString)
+	unit.BaseEvent = NewBaseEvent(deviceId, clickString)
 	//																					????
 	// 55 442877A6 00059CAA29 32 33322E343400 0200 00 00 00 00 00 00 00 00 0000 0000 00000000000000000000 00 7F 0A
 	// 55 4428839D 00008B8D72 32 33322E343400 0200 00 00 00 00 00 00 00 00 0000 0000 00000000000000000000 00 66 0A

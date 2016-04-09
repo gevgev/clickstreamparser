@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -93,6 +94,16 @@ var (
 	singleFileMode bool
 )
 
+func preParseLine(line string) (deviceId string, clickString string, err error) {
+	tokens := strings.Split(line, " ")
+	if len(tokens) != 2 {
+		return "", "", errors.New("Wrong format")
+	}
+	deviceId, clickString = tokens[0], tokens[1]
+
+	return deviceId, clickString, nil
+}
+
 func main() {
 	startTime := time.Now()
 
@@ -143,12 +154,13 @@ func main() {
 			scanner := bufio.NewScanner(file)
 			for scanner.Scan() {
 				line := scanner.Text()
-				tokens := strings.Split(line, " ")
-				if len(tokens) != 2 {
-					fmt.Println("Wrong file format for: ", fileName)
+				deviceId, clickString, err := preParseLine(line)
+
+				if err != nil {
+					fmt.Println(err, fileName)
 					return
 				}
-				deviceId, clickString := tokens[0], tokens[1]
+
 				switch CheckCommand(clickString) {
 				case R_AD:
 					adEvent := NewAdEvent(deviceId, clickString)

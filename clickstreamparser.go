@@ -33,6 +33,7 @@ const (
 	R_HIGHLIGHT    Command = "48" // H
 	R_INFO         Command = "49" // I
 	R_KEY          Command = "4B" // K
+	R_MISSING      Command = "4D" // M
 	R_OPTION       Command = "4F" // O
 	R_STATE        Command = "53" // S
 	R_TURBO        Command = "54" // T
@@ -291,6 +292,19 @@ func main() {
 							video.VodPlaybackMode,
 							video.Source,
 							video.PlayBackPosition)
+					}
+				case R_MISSING:
+					missing := NewMissingEvent(deviceId, clickString)
+					if verbose {
+						fmt.Println(missing)
+					}
+					eventsCollection = append(eventsCollection, missing)
+					if diagnostics {
+
+						fmt.Println("Diagnostics: ", missing.BaseEvent.Diagnostic())
+						fmt.Println(missing.Type,
+							missing.Count,
+							missing.Reasons)
 					}
 				case R_UNIT:
 					unit := NewUnitIdentificationEvent(deviceId, clickString)

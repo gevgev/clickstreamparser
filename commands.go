@@ -590,5 +590,32 @@ func (option OptionEvent) String() string {
 		option.BaseEvent,
 		option.Option,
 		option.Value)
+}
 
+// ---------- Missing: M, 4D --------------------
+
+type MissingEvent struct {
+	*BaseEvent
+	Type    string
+	Count   int
+	Reasons string
+}
+
+func NewMissingEvent(deviceId, clickString string) *MissingEvent {
+	missing := new(MissingEvent)
+	missing.BaseEvent = NewBaseEvent(deviceId, clickString)
+
+	missing.Type = convertToString(clickString[10:12])
+	missing.Count = int(convertToInt(clickString[12:16]))
+	missing.Reasons = clickString[16:20]
+
+	return missing
+}
+
+func (missing MissingEvent) String() string {
+	return fmt.Sprintf("%s\tType:[%s]\tCount:[%d]\tReasons:[%s]",
+		missing.BaseEvent,
+		missing.Type,
+		missing.Count,
+		missing.Reasons)
 }

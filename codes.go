@@ -10,6 +10,7 @@ var eventCodes = [...]EventCode{
 	{"42", "R_BUTTONCONFIG"},
 	{"43", "R_CHANGECHANNEL"},
 	{"45", "R_PROGRAMEVENT"},
+	{"47", "R_VODCAT"},
 	{"48", "R_HIGHLIGHT"},
 	{"49", "R_INFO"},
 	{"4B", "R_KEY"},

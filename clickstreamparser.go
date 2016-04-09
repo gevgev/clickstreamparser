@@ -10,6 +10,18 @@ import (
 	"time"
 )
 
+type FileReport struct {
+	TotalEvents   int
+	UnknownEvents []string
+}
+
+func NewFileReport() *FileReport {
+	report := FileReport{}
+	report.TotalEvents = 0
+	report.UnknownEvents = []string{}
+	return &report
+}
+
 type Command string
 
 const (
@@ -79,19 +91,21 @@ func main() {
 
 	// This is our semaphore/pool
 	sem := make(chan bool, concurrency)
-	totalEventsChan := make(chan int, concurrency)
+	totalEventsChan := make(chan FileReport, concurrency)
 
 	files := getFilesToProcess()
 
 	totalEvents := 0
+	allUnknownEvents := []string{}
 	go func() {
 		for {
-			nn, more := <-totalEventsChan
+			oneReport, more := <-totalEventsChan
 			if more {
 				if diagnostics {
-					fmt.Println("Reported: ", nn)
+					fmt.Println("Reported: ", oneReport.TotalEvents)
 				}
-				totalEvents += nn
+				totalEvents += oneReport.TotalEvents
+				allUnknownEvents = append(allUnknownEvents, oneReport.UnknownEvents...)
 			} else {
 				if diagnostics {
 					fmt.Println("Got all reports, breaking")
@@ -110,6 +124,7 @@ func main() {
 			// Signal end of processing at the end
 			defer func() { <-sem }()
 			eventsCollection := []interface{}{}
+			report := FileReport{}
 
 			file, err := os.Open(fileName)
 			if err != nil {
@@ -269,6 +284,8 @@ func main() {
 							unit.SourceIdTuner0,
 							unit.SourceIdTuner1)
 					}
+				default:
+					report.UnknownEvents = append(report.UnknownEvents, line)
 				}
 			}
 
@@ -276,7 +293,8 @@ func main() {
 				fmt.Printf("Error while processing file: %s: %v\n", fileName, err)
 			}
 			// Reporting number of processed events
-			totalEventsChan <- len(eventsCollection)
+			report.TotalEvents = len(eventsCollection)
+			totalEventsChan <- report
 
 			fileNameToSave := formatFileNameToSave(fileName)
 			switch outputFormat {
@@ -305,8 +323,24 @@ func main() {
 
 	close(totalEventsChan)
 
+	logUnknownEvents(allUnknownEvents)
+
 	fmt.Printf("Processed %d files, %d events in %v\n", len(files), totalEvents, time.Since(startTime))
 
+}
+
+// Log unknown reports
+func logUnknownEvents(allUnknownEvents []string) {
+	file, err := os.Create("unknownevents.raw")
+	if err != nil {
+		fmt.Println(err)
+	}
+	w := bufio.NewWriter(file)
+	for _, event := range allUnknownEvents {
+		fmt.Fprintln(w, event)
+	}
+	w.Flush()
+	file.Close()
 }
 
 // Format output file name

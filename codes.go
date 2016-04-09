@@ -14,6 +14,7 @@ var eventCodes = [...]EventCode{
 	{"54", "R_TURBO"},
 	{"48", "R_HIGHLIGHT"},
 	{"49", "R_INFO"},
+	{"4F", "R_OPTION"},
 	{"56", "R_VIDEO"},
 	{"4B", "R_KEY"},
 	{"55", "R_UNIT"},

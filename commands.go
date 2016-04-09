@@ -566,3 +566,29 @@ func (key TurboKeyEvent) String() string {
 		key.BaseEvent,
 		key.Key)
 }
+
+// ---------- Option: O, 4F --------------------
+
+type OptionEvent struct {
+	*BaseEvent
+	Option string
+	Value  int
+}
+
+func NewOptionEvent(deviceId, clickString string) *OptionEvent {
+	option := new(OptionEvent)
+	option.BaseEvent = NewBaseEvent(deviceId, clickString)
+
+	option.Option = lookUpOptionKeyName(int(convertToInt(clickString[10:12])))
+	option.Value = int(convertToInt(clickString[12:14]))
+
+	return option
+}
+
+func (option OptionEvent) String() string {
+	return fmt.Sprintf("%s\tOption:[%s]\tValue:[%d]",
+		option.BaseEvent,
+		option.Option,
+		option.Value)
+
+}

@@ -25,15 +25,16 @@ func NewFileReport() *FileReport {
 type Command string
 
 const (
-	R_AD        Command = "41"
-	R_BtnCnfg   Command = "42"
-	R_ChanVrb   Command = "43"
-	R_STATE     Command = "53"
-	R_HIGHLIGHT Command = "48"
-	R_INFO      Command = "49"
-	R_VIDEO     Command = "56"
-	R_KEY       Command = "4B"
-	R_UNIT      Command = "55"
+	R_AD        Command = "41" // A
+	R_BtnCnfg   Command = "42" // B
+	R_ChanVrb   Command = "43" // C
+	R_VODCat    Command = "47" // G
+	R_HIGHLIGHT Command = "48" // H
+	R_INFO      Command = "49" // I
+	R_KEY       Command = "4B" // K
+	R_STATE     Command = "53" // S
+	R_UNIT      Command = "55" // U
+	R_VIDEO     Command = "56" // V
 )
 
 func CheckCommand(clickString string) Command {
@@ -55,7 +56,7 @@ func init() {
 	flagOutputFormat := flag.String("s", txtOutput, "`Output format`s: txt, json, xml")
 	flagOutputFile := flag.String("o", "output", "`Output filename`")
 	flagConcurrency := flag.Int("c", 100, "The number of files to process `concurrent`ly")
-	flagVerbose := flag.Bool("v", true, "`Verbose`: outputs to the screen")
+	flagVerbose := flag.Bool("v", false, "`Verbose`: outputs to the screen")
 
 	flag.Parse()
 	if flag.Parsed() {
@@ -283,6 +284,17 @@ func main() {
 							unit.TunerInfo,
 							unit.SourceIdTuner0,
 							unit.SourceIdTuner1)
+					}
+				case R_VODCat:
+					vodCat := NewVodCategoryEvent(deviceId, clickString)
+					if verbose {
+						fmt.Println(vodCat)
+					}
+					eventsCollection = append(eventsCollection, vodCat)
+					if diagnostics {
+
+						fmt.Println("Diagnostics: ", vodCat.BaseEvent.Diagnostic())
+						fmt.Println(vodCat.Str)
 					}
 				default:
 					report.UnknownEvents = append(report.UnknownEvents, line)

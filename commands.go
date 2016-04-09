@@ -447,3 +447,27 @@ func (unit UnitIdentificationEvent) String() string {
 		unit.SoftwareVersion,
 		unit.Profile)
 }
+
+// ---------- VOD Category: G, 47 --------------------
+
+type VodCategoryEvent struct {
+	*BaseEvent
+	StringLength int
+	Str          string
+}
+
+func NewVodCategoryEvent(deviceId, clickString string) *VodCategoryEvent {
+	vodCat := new(VodCategoryEvent)
+	vodCat.BaseEvent = NewBaseEvent(deviceId, clickString)
+
+	vodCat.StringLength = int(convertToInt(clickString[10:12]))
+	vodCat.Str = clickString[12 : 12+vodCat.StringLength*2]
+
+	return vodCat
+}
+
+func (vodCat VodCategoryEvent) String() string {
+	return fmt.Sprintf("%s\tVOD Category:[%s]",
+		vodCat.BaseEvent,
+		vodCat.Str)
+}

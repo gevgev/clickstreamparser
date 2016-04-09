@@ -53,12 +53,21 @@ const (
 	xmlOutput  = "xml"
 	jsonOutput = "json"
 	rawExt     = "raw"
+	csExt      = "cs"
+)
+
+type FileType int
+
+const (
+	FT_WRONG FileType = iota
+	FT_RAW
+	FT_CS
 )
 
 func init() {
 	flagFileName := flag.String("f", "", "Input `filename` to process")
 	flagDirName := flag.String("d", "", "Working `directory` for input files, default extension *.raw")
-	flagExtension := flag.String("x", rawExt, "Input files `extension`")
+	flagExtension := flag.String("x", rawExt, "Input files `extension`: raw, cs")
 	flagDiagnostics := flag.Bool("t", false, "Turns `diagnostic` messages On")
 	flagOutputFormat := flag.String("s", txtOutput, "`Output format`s: txt, json, xml")
 	flagOutputFile := flag.String("o", "output", "`Output filename`")
@@ -94,13 +103,28 @@ var (
 	singleFileMode bool
 )
 
-func preParseLine(line string) (deviceId string, clickString string, err error) {
+func preParseLine(line string, fileType FileType) (deviceId string, clickString string, err error) {
+	var splinNo, deviceIndex, eventIndex int
+	switch fileType {
+	case FT_CS:
+		splinNo = 4
+		deviceIndex = 2
+		eventIndex = 3
+	case FT_RAW:
+		splinNo = 2
+		deviceIndex = 0
+		eventIndex = 1
+	}
+
 	tokens := strings.Split(line, " ")
-	if len(tokens) != 2 {
+	if len(tokens) != splinNo {
 		return "", "", errors.New("Wrong format")
 	}
-	deviceId, clickString = tokens[0], tokens[1]
-
+	deviceId, clickString = tokens[deviceIndex], tokens[eventIndex]
+	// for CS ignore the first byte - 2 characters
+	if fileType == FT_CS {
+		clickString = clickString[2 : len(clickString)-1]
+	}
 	return deviceId, clickString, nil
 }
 
@@ -151,10 +175,21 @@ func main() {
 			}
 			defer file.Close()
 
+			fileType := getFileType(fileName)
+			if fileType == FT_WRONG {
+				fmt.Println("Wrong file type: (cs or raw)", fileName)
+				return
+			}
+
 			scanner := bufio.NewScanner(file)
+			// for CS files, discard the first line
+			if fileType == FT_CS {
+				_ = scanner.Scan()
+			}
+
 			for scanner.Scan() {
 				line := scanner.Text()
-				deviceId, clickString, err := preParseLine(line)
+				deviceId, clickString, err := preParseLine(line, fileType)
 
 				if err != nil {
 					fmt.Println(err, fileName)

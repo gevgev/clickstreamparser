@@ -80,3 +80,14 @@ func validateOutFileName(fileName string) string {
 func isRawFile(fileName string) bool {
 	return filepath.Ext(fileName) == "."+inExtension
 }
+
+func getFileType(fileName string) FileType {
+	ext := filepath.Ext(fileName)
+	switch ext {
+	case "." + csExt:
+		return FT_CS
+	case "." + rawExt:
+		return FT_RAW
+	}
+	return FT_WRONG
+}

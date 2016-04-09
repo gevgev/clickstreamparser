@@ -112,6 +112,8 @@ type ChannelChangeVerboseEvent struct {
 	LastKey       string
 }
 
+const R31_ChannelChangeLength = 32 + 6
+
 func NewChannelChangeVerboseEvent(deviceId, clickString string) *ChannelChangeVerboseEvent {
 	channelchange := new(ChannelChangeVerboseEvent)
 	channelchange.BaseEvent = NewBaseEvent(deviceId, clickString)
@@ -122,10 +124,13 @@ func NewChannelChangeVerboseEvent(deviceId, clickString string) *ChannelChangeVe
 	channelchange.SourseId = clickString[14:18]
 	channelchange.ProgramId = clickString[18:24]
 	channelchange.Auth = convertToString(clickString[24:26])
-	channelchange.TunerInfo = clickString[26:28]
-	channelchange.PreviousState = clickString[28:30]
-	channelchange.LastKey = clickString[30:32]
 
+	// R31 added
+	if len(clickString) == R31_ChannelChangeLength {
+		channelchange.TunerInfo = clickString[26:28]
+		channelchange.PreviousState = clickString[28:30]
+		channelchange.LastKey = clickString[30:32]
+	}
 	return channelchange
 }
 
@@ -344,31 +349,44 @@ func (hilit HighlightEvent) String() string {
 
 type VideoPlaybackEvent struct {
 	*BaseEvent
-	Id               string
-	VodPlaybackMode  string
-	Source           string
+	Id              string
+	VodPlaybackMode string
+	Source          string
+	// R31
 	PlayBackPosition string
+	// A28
+	TimeOffset int
 }
+
+const R31_VideoLength = 32 + 6
 
 func NewVideoPlaybackEvent(deviceId, clickString string) *VideoPlaybackEvent {
 	video := new(VideoPlaybackEvent)
 	video.BaseEvent = NewBaseEvent(deviceId, clickString)
 
-	video.Id = clickString[10:24]
-	video.VodPlaybackMode = clickString[24:26]
-	video.Source = convertToString(clickString[26:28])
-	video.PlayBackPosition = clickString[28:32]
+	if len(clickString) == R31_VideoLength {
+		video.Id = clickString[10:24]
+		video.VodPlaybackMode = clickString[24:26]
+		video.Source = convertToString(clickString[26:28])
+		video.PlayBackPosition = clickString[28:32]
+	} else {
+		video.Id = clickString[10:18]
+		video.VodPlaybackMode = clickString[18:20]
+		video.Source = convertToString(clickString[20:22])
+		video.TimeOffset = int(convertToInt(clickString[22:26]))
+	}
 
 	return video
 }
 
 func (video VideoPlaybackEvent) String() string {
-	return fmt.Sprintf("%s\tId:[%s]\tVOD Playback Mode:[%s]\t Source [%s]\t Playback Position: [%s]",
+	return fmt.Sprintf("%s\tId:[%s]\tVOD Playback Mode:[%s]\t Source [%s]\t Playback Position: [%s] | Offset:[%d]",
 		video.BaseEvent,
 		video.Id,
 		video.VodPlaybackMode,
 		video.Source,
-		video.PlayBackPosition)
+		video.PlayBackPosition,
+		video.TimeOffset)
 }
 
 // ---------- Key Press: K, 4B --------------------
@@ -415,6 +433,8 @@ type UnitIdentificationEvent struct {
 	SourceIdTuner1            string
 }
 
+const R31_IDLength = 62 + 6
+
 func NewUnitIdentificationEvent(deviceId, clickString string) *UnitIdentificationEvent {
 	unit := new(UnitIdentificationEvent)
 	unit.BaseEvent = NewBaseEvent(deviceId, clickString)
@@ -424,18 +444,21 @@ func NewUnitIdentificationEvent(deviceId, clickString string) *UnitIdentificatio
 	unit.UnitAddress = clickString[10:20]
 	unit.HardwareType = clickString[20:22]
 	unit.SoftwareVersion = convertToString(clickString[22:34])
-	unit.Profile = clickString[34:38]
-	unit.PeriodicReports = clickString[38:40]
-	unit.PollingReports = clickString[40:42]
-	unit.HighWaterMarkReports = clickString[42:44]
-	unit.BlackoutOverflowReports = clickString[44:46]
-	unit.ExceededMaxReportsPerHour = clickString[46:48]
-	unit.UsedBufferSize = clickString[48:50]
-	unit.GuideState = clickString[50:52]
-	unit.TunerInfo = clickString[52:54]
-	unit.SourceIdTuner0 = clickString[54:58]
-	unit.SourceIdTuner1 = clickString[58:62]
 
+	//R31 Added
+	if len(clickString) == R31_IDLength {
+		unit.Profile = clickString[34:38]
+		unit.PeriodicReports = clickString[38:40]
+		unit.PollingReports = clickString[40:42]
+		unit.HighWaterMarkReports = clickString[42:44]
+		unit.BlackoutOverflowReports = clickString[44:46]
+		unit.ExceededMaxReportsPerHour = clickString[46:48]
+		unit.UsedBufferSize = clickString[48:50]
+		unit.GuideState = clickString[50:52]
+		unit.TunerInfo = clickString[52:54]
+		unit.SourceIdTuner0 = clickString[54:58]
+		unit.SourceIdTuner1 = clickString[58:62]
+	}
 	return unit
 }
 
@@ -495,6 +518,8 @@ type ProgramEventEvent struct {
 	SearchString    string
 }
 
+const R31_EventLength = 58 + 6
+
 func NewProgramEventEvent(deviceId, clickString string) *ProgramEventEvent {
 	event := new(ProgramEventEvent)
 	event.BaseEvent = NewBaseEvent(deviceId, clickString)
@@ -515,9 +540,11 @@ func NewProgramEventEvent(deviceId, clickString string) *ProgramEventEvent {
 	event.SaveUntil = convertToString(clickString[52:54])
 	event.StartOffset = int(convertToInt(clickString[54:56]))
 	event.EndOffset = int(convertToInt(clickString[56:58]))
-	event.Length = int(convertToInt(clickString[58:60]))
-	event.SearchString = convertToString(clickString[60 : 60+event.Length*2])
-
+	// R31 Added
+	if len(clickString) == R31_EventLength {
+		event.Length = int(convertToInt(clickString[58:60]))
+		event.SearchString = convertToString(clickString[60 : 60+event.Length*2])
+	}
 	return event
 }
 

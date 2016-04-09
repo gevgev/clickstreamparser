@@ -640,3 +640,24 @@ func (reset ResetEvent) String() string {
 		reset.BaseEvent,
 		reset.Reason)
 }
+
+// ---------- Pulse: P, 50 --------------------
+
+type PulseEvent struct {
+	*BaseEvent
+	RunTime int
+}
+
+func NewPulseEvent(deviceId, clickString string) *PulseEvent {
+	pulse := new(PulseEvent)
+	pulse.BaseEvent = NewBaseEvent(deviceId, clickString)
+
+	pulse.RunTime = int(convertToInt(clickString[10:16]))
+	return pulse
+}
+
+func (pulse PulseEvent) String() string {
+	return fmt.Sprintf("%s\tRunTime:[%d]",
+		pulse.BaseEvent,
+		pulse.RunTime)
+}

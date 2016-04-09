@@ -35,6 +35,7 @@ const (
 	R_KEY          Command = "4B" // K
 	R_MISSING      Command = "4D" // M
 	R_OPTION       Command = "4F" // O
+	R_PULSE        Command = "50" // P
 	R_RESET        Command = "52" // R
 	R_STATE        Command = "53" // S
 	R_TURBO        Command = "54" // T
@@ -317,6 +318,17 @@ func main() {
 
 						fmt.Println("Diagnostics: ", reset.BaseEvent.Diagnostic())
 						fmt.Println(reset.Reason)
+					}
+				case R_PULSE:
+					pulse := NewPulseEvent(deviceId, clickString)
+					if verbose {
+						fmt.Println(pulse)
+					}
+					eventsCollection = append(eventsCollection, pulse)
+					if diagnostics {
+
+						fmt.Println("Diagnostics: ", pulse.BaseEvent.Diagnostic())
+						fmt.Println(pulse.RunTime)
 					}
 				case R_UNIT:
 					unit := NewUnitIdentificationEvent(deviceId, clickString)

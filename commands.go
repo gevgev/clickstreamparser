@@ -619,3 +619,24 @@ func (missing MissingEvent) String() string {
 		missing.Count,
 		missing.Reasons)
 }
+
+// ---------- Reset: R, 52 --------------------
+
+type ResetEvent struct {
+	*BaseEvent
+	Reason string
+}
+
+func NewResetEvent(deviceId, clickString string) *ResetEvent {
+	reset := new(ResetEvent)
+	reset.BaseEvent = NewBaseEvent(deviceId, clickString)
+
+	reset.Reason = convertToString(clickString[10:12])
+	return reset
+}
+
+func (reset ResetEvent) String() string {
+	return fmt.Sprintf("%s\tReason:[%s]",
+		reset.BaseEvent,
+		reset.Reason)
+}

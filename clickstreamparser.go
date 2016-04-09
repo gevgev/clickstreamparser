@@ -34,6 +34,7 @@ const (
 	R_INFO         Command = "49" // I
 	R_KEY          Command = "4B" // K
 	R_STATE        Command = "53" // S
+	R_TURBO        Command = "54" // T
 	R_UNIT         Command = "55" // U
 	R_VIDEO        Command = "56" // V
 )
@@ -229,6 +230,18 @@ func main() {
 					}
 				case R_KEY:
 					key := NewKeyPressEvent(deviceId, clickString)
+					if verbose {
+						fmt.Println(key)
+					}
+					eventsCollection = append(eventsCollection, key)
+					if diagnostics {
+
+						fmt.Println("Diagnostics: ", key.BaseEvent.Diagnostic())
+						fmt.Println(key.Command,
+							key.KeyCode)
+					}
+				case R_TURBO:
+					key := NewTurboKeyEvent(deviceId, clickString)
 					if verbose {
 						fmt.Println(key)
 					}

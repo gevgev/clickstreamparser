@@ -542,3 +542,27 @@ func (event ProgramEventEvent) String() string {
 		event.EndOffset,
 		event.SearchString)
 }
+
+// ---------- Turbo Key: T, 54 --------------------
+
+type TurboKeyEvent struct {
+	*BaseEvent
+	Key     string
+	KeyCode int
+}
+
+func NewTurboKeyEvent(deviceId, clickString string) *TurboKeyEvent {
+	key := new(TurboKeyEvent)
+	key.BaseEvent = NewBaseEvent(deviceId, clickString)
+
+	key.KeyCode = int(convertToInt(clickString[10:12]))
+	key.Key = lookUpKeyName(key.KeyCode)
+
+	return key
+}
+
+func (key TurboKeyEvent) String() string {
+	return fmt.Sprintf("%s\tTurboKey:[%s]",
+		key.BaseEvent,
+		key.Key)
+}

@@ -11,6 +11,7 @@ var eventCodes = [...]EventCode{
 	{"43", "R_CHANGECHANNEL"},
 	{"45", "R_PROGRAMEVENT"},
 	{"53", "R_STATE"},
+	{"54", "R_TURBO"},
 	{"48", "R_HIGHLIGHT"},
 	{"49", "R_INFO"},
 	{"56", "R_VIDEO"},

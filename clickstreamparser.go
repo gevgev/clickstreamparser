@@ -48,14 +48,14 @@ const (
 )
 
 func init() {
-	flagFileName := flag.String("fi", "", "Single filename to process")
-	flagDirName := flag.String("d", "", "Working folder for input files, default extension *.raw")
-	flagExtension := flag.String("e", rawExt, "Input files extension")
-	flagDiagnostics := flag.Bool("t", false, "Turns diagnostic messages On")
-	flagOutputFormat := flag.String("o", txtOutput, "Output formats: txt, json, xml")
-	flagOutputFile := flag.String("fo", "output", "Output file name")
-	flagConcurrency := flag.Int("c", 100, "The number of files to process concurrently")
-	flagVerbose := flag.Bool("v", true, "Verbose: outputs to the screen")
+	flagFileName := flag.String("f", "", "Input `filename` to process")
+	flagDirName := flag.String("d", "", "Working `directory` for input files, default extension *.raw")
+	flagExtension := flag.String("x", rawExt, "Input files `extension`")
+	flagDiagnostics := flag.Bool("t", false, "Turns `diagnostic` messages On")
+	flagOutputFormat := flag.String("s", txtOutput, "`Output format`s: txt, json, xml")
+	flagOutputFile := flag.String("o", "output", "`Output filename`")
+	flagConcurrency := flag.Int("c", 100, "The number of files to process `concurrent`ly")
+	flagVerbose := flag.Bool("v", true, "`Verbose`: outputs to the screen")
 
 	flag.Parse()
 	if flag.Parsed() {

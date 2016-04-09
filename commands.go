@@ -467,7 +467,78 @@ func NewVodCategoryEvent(deviceId, clickString string) *VodCategoryEvent {
 }
 
 func (vodCat VodCategoryEvent) String() string {
-	return fmt.Sprintf("%s\tVOD Category:[%s]",
+	return fmt.Sprintf("%s\tVOD Category Name:[%s]",
 		vodCat.BaseEvent,
 		vodCat.Str)
+}
+
+// -------------- Event E, 45 --------------------
+type ProgramEventEvent struct {
+	*BaseEvent
+	EventType       string
+	DataSource      string
+	EventRecurrence string
+	EventAction     string
+	EventTuner      int
+	TunerSelection  string
+	SourceID        string
+	EventDateTime   time.Time
+	EventDays       string
+	EventProgramID  string
+	EventSeriesID   string
+	EpisodeType     string
+	SaveNoMoreThan  string
+	SaveUntil       string
+	StartOffset     int
+	EndOffset       int
+	Length          int
+	SearchString    string
+}
+
+func NewProgramEventEvent(deviceId, clickString string) *ProgramEventEvent {
+	event := new(ProgramEventEvent)
+	event.BaseEvent = NewBaseEvent(deviceId, clickString)
+
+	event.EventType = convertToString(clickString[10:12])
+	event.DataSource = convertToString(clickString[12:14])
+	event.EventRecurrence = convertToString(clickString[14:16])
+	event.EventAction = convertToString(clickString[16:18])
+	event.EventTuner = int(convertToInt(clickString[18:20]))
+	event.TunerSelection = convertToString(clickString[20:22])
+	event.SourceID = clickString[22:26]
+	event.EventDateTime = convertToTime(clickString[26:34])
+	event.EventDays = clickString[34:36]
+	event.EventProgramID = clickString[36:42]
+	event.EventSeriesID = clickString[42:48]
+	event.EpisodeType = convertToString(clickString[48:50])
+	event.SaveNoMoreThan = clickString[50:52] // complex definition
+	event.SaveUntil = convertToString(clickString[52:54])
+	event.StartOffset = int(convertToInt(clickString[54:56]))
+	event.EndOffset = int(convertToInt(clickString[56:58]))
+	event.Length = int(convertToInt(clickString[58:60]))
+	event.SearchString = convertToString(clickString[60 : 60+event.Length*2])
+
+	return event
+}
+
+func (event ProgramEventEvent) String() string {
+	return fmt.Sprintf("%s\t EventType[%s] DataSource[%s] Recurrence[%s] Action[%s] Tuner[%d] TunerSelection[%s] SourceID[%s] DateTime[%v] Days[%s] ProgramID[%s] SeriesID[%s] Type[%s] SaveNoMoreThan[%s] SaveUntil[%s] StartOffset[%d] EndOffset[%d] SearchString[%s]",
+		event.BaseEvent,
+		event.EventType,
+		event.DataSource,
+		event.EventRecurrence,
+		event.EventAction,
+		event.EventTuner,
+		event.TunerSelection,
+		event.SourceID,
+		event.EventDateTime,
+		event.EventDays,
+		event.EventProgramID,
+		event.EventSeriesID,
+		event.EpisodeType,
+		event.SaveNoMoreThan,
+		event.SaveUntil,
+		event.StartOffset,
+		event.EndOffset,
+		event.SearchString)
 }

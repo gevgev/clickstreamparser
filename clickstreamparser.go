@@ -25,16 +25,17 @@ func NewFileReport() *FileReport {
 type Command string
 
 const (
-	R_AD        Command = "41" // A
-	R_BtnCnfg   Command = "42" // B
-	R_ChanVrb   Command = "43" // C
-	R_VODCat    Command = "47" // G
-	R_HIGHLIGHT Command = "48" // H
-	R_INFO      Command = "49" // I
-	R_KEY       Command = "4B" // K
-	R_STATE     Command = "53" // S
-	R_UNIT      Command = "55" // U
-	R_VIDEO     Command = "56" // V
+	R_AD           Command = "41" // A
+	R_BtnCnfg      Command = "42" // B
+	R_ChanVrb      Command = "43" // C
+	R_PROGRAMEVENT Command = "45" // E
+	R_VODCat       Command = "47" // G
+	R_HIGHLIGHT    Command = "48" // H
+	R_INFO         Command = "49" // I
+	R_KEY          Command = "4B" // K
+	R_STATE        Command = "53" // S
+	R_UNIT         Command = "55" // U
+	R_VIDEO        Command = "56" // V
 )
 
 func CheckCommand(clickString string) Command {
@@ -295,6 +296,33 @@ func main() {
 
 						fmt.Println("Diagnostics: ", vodCat.BaseEvent.Diagnostic())
 						fmt.Println(vodCat.Str)
+					}
+				case R_PROGRAMEVENT:
+					event := NewProgramEventEvent(deviceId, clickString)
+					if verbose {
+						fmt.Println(event)
+					}
+					eventsCollection = append(eventsCollection, event)
+					if diagnostics {
+						fmt.Println("Diagnostics: ", event.BaseEvent.Diagnostic())
+						fmt.Println(event.EventType,
+							event.DataSource,
+							event.EventRecurrence,
+							event.EventAction,
+							event.EventTuner,
+							event.TunerSelection,
+							event.SourceID,
+							event.EventDateTime,
+							event.EventDays,
+							event.EventProgramID,
+							event.EventSeriesID,
+							event.EpisodeType,
+							event.SaveNoMoreThan,
+							event.SaveUntil,
+							event.StartOffset,
+							event.EndOffset,
+							event.Length,
+							event.SearchString)
 					}
 				default:
 					report.UnknownEvents = append(report.UnknownEvents, line)

@@ -9,6 +9,7 @@ var eventCodes = [...]EventCode{
 	{"41", "R_AD"},
 	{"42", "R_BUTTONCONFIG"},
 	{"43", "R_CHANGECHANNEL"},
+	{"45", "R_PROGRAMEVENT"},
 	{"53", "R_STATE"},
 	{"48", "R_HIGHLIGHT"},
 	{"49", "R_INFO"},

@@ -49,6 +49,7 @@ func CheckCommand(clickString string) Command {
 }
 
 const (
+	version    = "0.9"
 	txtOutput  = "txt"
 	xmlOutput  = "xml"
 	jsonOutput = "json"
@@ -84,11 +85,24 @@ func init() {
 		outputFileName = *flagOutputFile
 		concurrency = *flagConcurrency
 		verbose = *flagVerbose
+		appName = os.Args[0]
+		if inFileName == "" && dirName == "" && len(os.Args) == 2 {
+			inFileName = os.Args[1]
+		}
 	} else {
-		flag.Usage()
-		os.Exit(-1)
+		usage()
 	}
 
+}
+
+func usage() {
+	fmt.Printf("%s, ver. %s\n", appName, version)
+	fmt.Println("Command line:")
+	fmt.Printf("\tprompt$>%s <filename>\n", appName)
+	fmt.Printf("\tprompt$>%s -f <filename> -d <dir> -o <outputfile> -s <outFormat> -t -v -x <extension>\n", appName)
+	fmt.Println("Provide either file or dir. Dir takes over file, if both provided")
+	flag.Usage()
+	os.Exit(-1)
 }
 
 var (
@@ -101,6 +115,7 @@ var (
 	concurrency    int
 	verbose        bool
 	singleFileMode bool
+	appName        string
 )
 
 func preParseLine(line string, fileType FileType) (deviceId string, clickString string, err error) {
@@ -517,8 +532,7 @@ func getFilesToProcess() []string {
 		} else {
 			// no Dir name, no file name
 			fmt.Println("Input file name or working directory is not provided")
-			flag.Usage()
-			os.Exit(-1)
+			usage()
 		}
 	}
 

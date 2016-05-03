@@ -55,6 +55,7 @@ const (
 	jsonOutput = "json"
 	rawExt     = "raw"
 	csExt      = "cs"
+	csPayload  = "txt"
 )
 
 type FileType int
@@ -63,6 +64,7 @@ const (
 	FT_WRONG FileType = iota
 	FT_RAW
 	FT_CS
+	FT_PAYLOAD
 )
 
 func init() {
@@ -129,13 +131,26 @@ func preParseLine(line string, fileType FileType) (deviceId string, clickString 
 		splinNo = 2
 		deviceIndex = 0
 		eventIndex = 1
+	case FT_PAYLOAD:
+		splinNo = 4
+		deviceIndex = 1
+		eventIndex = 2		
 	}
 
 	tokens := strings.Split(line, " ")
 	if len(tokens) != splinNo {
 		return "", "", errors.New("Wrong format")
 	}
+
 	deviceId, clickString = tokens[deviceIndex], tokens[eventIndex]
+	if fileType == FT_PAYLOAD {
+	// For Payload text file split one more time per'=' and take the value part of key=value format
+		splitStrings := strings.Split(deviceId, "=")
+		deviceId = splitStrings[1]
+
+		splitStrings = strings.Split(clickString, "=")
+		clickString = splitStrings[1]
+	}
 	// for CS ignore the first byte - 2 characters
 	if fileType == FT_CS {
 		clickString = clickString[2 : len(clickString)-1]

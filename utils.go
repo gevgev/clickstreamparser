@@ -88,6 +88,8 @@ func getFileType(fileName string) FileType {
 		return FT_CS
 	case "." + rawExt:
 		return FT_RAW
+	case "." +csPayload:
+		return FT_PAYLOAD
 	}
 	return FT_WRONG
 }

@@ -74,7 +74,7 @@ func init() {
 	flagDiagnostics := flag.Bool("t", false, "Turns `diagnostic` messages On")
 	flagOutputFormat := flag.String("s", txtOutput, "`Output format`s: txt, json, xml")
 	flagOutputFile := flag.String("o", "output", "`Output filename`")
-	flagConcurrency := flag.Int("c", 100, "The number of files to process `concurrent`ly")
+	flagConcurrency := flag.Int("c", 20, "The number of files to process `concurrent`ly")
 	flagVerbose := flag.Bool("v", false, "`Verbose`: outputs to the screen")
 
 	flag.Parse()
@@ -139,7 +139,7 @@ func preParseLine(line string, fileType FileType) (deviceId string, clickString 
 
 	tokens := strings.Split(line, " ")
 	if len(tokens) != splinNo {
-		return "", "", errors.New("Wrong format")
+		return "", "", errors.New("Wrong line format: " + line + " - ")
 	}
 
 	deviceId, clickString = tokens[deviceIndex], tokens[eventIndex]
@@ -223,7 +223,7 @@ func main() {
 
 				if err != nil {
 					fmt.Println(err, fileName)
-					return
+					continue
 				}
 
 				switch CheckCommand(clickString) {
